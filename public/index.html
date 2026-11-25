@@ -1,1 +1,2349 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>migsock</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html{background:#020617}body{margin:0;background:radial-gradient(circle at 20% 0%,#172554 0,#0f172a 38%,#020617 100%);background-attachment:fixed;color:#e5e7eb;font:14px Arial,sans-serif;min-height:100vh}.wrap{width:100%;max-width:920px;margin:auto;padding:10px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px;padding:8px 4px;animation:slideDown .45s ease-out}h1{margin:0;font-size:24px;letter-spacing:.3px}.api{font-size:10px;color:#94a3b8;text-align:right}.panel{background:rgba(15,23,42,.88);border:1px solid #263449;border-radius:14px;padding:11px;margin-bottom:10px;box-shadow:0 8px 24px rgba(0,0,0,.22);backdrop-filter:blur(8px);animation:fadeUp .45s ease both}.panel:nth-of-type(2){animation-delay:.04s}.panel:nth-of-type(3){animation-delay:.08s}.panel:nth-of-type(4){animation-delay:.12s}.panel:nth-of-type(5){animation-delay:.16s}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.field label{display:block;margin-bottom:4px;color:#cbd5e1;font-size:12px}.field.wide{grid-column:1/-1}
+input,button,select{font:inherit;border-radius:10px;border:1px solid #334155}input{width:100%;background:#080f1d;color:#fff;padding:10px;min-height:42px;outline:none;transition:border-color .2s,box-shadow .2s,transform .2s}input:focus{border-color:#60a5fa;box-shadow:0 0 0 3px rgba(37,99,235,.16)}button{padding:10px 12px;background:#1e293b;color:#fff;cursor:pointer;min-height:42px;font-weight:700;transition:transform .15s ease,filter .15s ease,box-shadow .15s ease}button:hover{filter:brightness(1.12);box-shadow:0 5px 14px rgba(0,0,0,.22)}button:active{transform:scale(.96)}.primary{background:#2563eb}.danger{background:#b91c1c}.green{background:#166534}
+.cmdrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.timer-tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.timer-tools .field{min-width:0}.timer-tools select{width:100%;min-height:42px;background:#080f1d;color:#fff;padding:10px;border:1px solid #334155}.cmdrow button{width:100%}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions button{width:100%}
+.roomrow{display:grid;grid-template-columns:minmax(0,1fr) repeat(3,minmax(72px,92px));gap:7px;align-items:end}.room-actions{margin-top:8px}.timer-grid{gap:7px}.kick-command{grid-template-columns:1fr 1fr}.kick-command input{min-width:0}.reset-timer{background:#475569}
+.listtitle{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}.listtitle span{color:#cbd5e1;font-size:12px}
+.lists-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+#userList,#targetList{width:100%;height:190px;background:rgba(2,6,23,.92);color:#e5e7eb;padding:5px;border-radius:10px;border:1px solid #334155;overflow-y:auto;scrollbar-width:thin;overscroll-behavior:contain}
+#targetList .target-item{display:flex;align-items:center;padding:8px 9px;border-bottom:1px solid #1f2937;line-height:1.2;word-break:break-word;animation:itemIn .22s ease both}
+#targetList .target-item:last-child{border-bottom:0}
+#targetList .empty{color:#64748b;padding:7px 8px}
+.trash-btn{width:34px;min-height:30px;height:30px;padding:3px 6px;font-size:17px;line-height:1;border-radius:7px}
+#userList .user-item{display:flex;align-items:center;gap:9px;padding:8px 9px;border-bottom:1px solid #1f2937;line-height:1.2;word-break:break-word;animation:itemIn .22s ease both}
+#userList .user-item:last-child{border-bottom:0}
+#userList .user-check{width:19px;min-width:19px;height:19px;min-height:19px;margin:0;accent-color:#3b82f6;cursor:pointer}
+#userList .empty{color:#64748b;padding:7px 8px}
+table{width:100%;border-collapse:collapse;background:#111827;border-radius:10px;overflow:hidden}th,td{padding:7px;border-bottom:1px solid #1f2937;text-align:left}th{color:#94a3b8;font-size:11px}
+td input{padding:8px;min-height:36px}.kick-overall{display:flex;flex-wrap:wrap;gap:6px;font-size:11px;color:#94a3b8}.kick-overall b{color:#fff}.kick-socket-head{display:flex;justify-content:space-between;gap:5px;align-items:center;margin-bottom:4px}.kick-socket-name{font-weight:800;color:#fff;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.kick-socket-state{font-size:8px;font-weight:800;white-space:nowrap}.kick-socket-track{width:100%;height:7px;background:#020617;border:1px solid #334155;border-radius:999px;overflow:hidden}.kick-socket-fill{height:100%;width:0%;background:#22c55e;transition:none}.kick-socket-detail{display:flex;justify-content:space-between;gap:4px;margin-top:4px;font-size:9px}.kick-socket-stat{background:transparent;padding:0;min-width:0}.kick-socket-stat b{display:inline;font-size:9px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.kick-socket-stat span{display:none}.kick-socket-last{margin-top:4px;font-size:8px;color:#94a3b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.password-cell{min-width:0}.password-wrap{display:flex;align-items:center;gap:5px;min-width:0}.password-wrap input{flex:1;min-width:0}.wallet-caption{display:inline-flex;align-items:center;justify-content:center;min-width:30px;padding:0 3px;font-size:14px;color:#22d3ee;white-space:nowrap;font-weight:800;flex:0 0 auto}.password-wrap input{min-width:0}.status-balloon{display:inline-block;width:11px;height:11px;border-radius:50%;background:#64748b;box-shadow:0 0 0 2px rgba(100,116,139,.14);vertical-align:middle}.status-balloon.connecting{background:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.14)}.status-balloon.online{background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.14);animation:pulseOnline 1.8s ease-in-out infinite}.status-balloon.error{background:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.14)}.status-balloon.offline{background:#64748b}.status{font-weight:bold}.flat-report{margin-top:10px;border:1px solid rgba(148,163,184,.12);border-radius:10px;overflow:auto;background:rgba(3,7,18,.35)}.flat-report table{width:100%;min-width:760px;border-collapse:collapse;border:0;border-radius:0;background:transparent}.flat-report th,.flat-report td{padding:6px 7px;font-size:10px;white-space:nowrap}.flat-report .flat-ok{color:#22c55e;font-weight:800}.flat-report .flat-wait{color:#f59e0b;font-weight:800}.flat-report .flat-error{color:#ef4444;font-weight:800}.flat-summary{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;font-size:10px;color:#94a3b8}.flat-summary b{color:#fff}.flat-progress{height:7px;margin-top:8px;border-radius:999px;overflow:hidden;background:#020617;border:1px solid #334155}.flat-progress-fill{height:100%;width:0%;background:#22c55e;transition:width .15s linear}.offline{color:#94a3b8}.connecting{color:#f59e0b}.online{color:#22c55e}.error{color:#ef4444}
+.status{transition:color .2s}.online{animation:pulseOnline 1.8s ease-in-out infinite}.listtitle{min-height:30px}.listtitle span:first-child{font-weight:800;letter-spacing:.3px}@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}@keyframes itemIn{from{opacity:0;transform:translateX(-5px)}to{opacity:1;transform:none}}@keyframes pulseOnline{0%,100%{opacity:1}50%{opacity:.55}}.room-timer-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;align-items:end;margin-top:8px}.duel-settings-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1.15fr;gap:7px;align-items:end;margin-top:8px}.kick-mode-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(120px,.72fr);gap:7px;align-items:stretch;margin-top:8px}.kick-mode-stack{display:grid;grid-template-rows:1fr;gap:7px;min-width:0}.kick-mode-stack .field{min-width:0}.kick-mode-stack select{width:100%;min-height:42px}.kickall-side{width:100%;height:100%;min-height:91px;font-size:13px;font-weight:900;letter-spacing:.5px}.countdown-field label{font-size:14px;font-weight:900;letter-spacing:.8px}.countdown-field input{font-size:18px;font-weight:900;text-align:center;min-height:42px}.reset-field button{width:100%;min-height:42px;font-size:25px;font-weight:900;padding:0}.reset-timer{display:flex;align-items:center;justify-content:center}.countdown-reset-inline{flex:0 0 42px;width:42px;min-height:38px;margin-left:auto;font-size:24px!important;padding:0!important}.compact-heading:has(.countdown-reset-inline){display:flex;align-items:center;gap:9px}.compact-heading:has(.countdown-reset-inline)>div:nth-child(2){flex:1;min-width:0}
+@media(max-width:600px){body{font-size:13px}.wrap{padding:7px}.top{align-items:flex-start;padding:5px 3px}.top h1{font-size:21px}.api{max-width:155px;line-height:1.25}.panel{padding:9px;border-radius:12px;margin-bottom:8px}.grid{grid-template-columns:1fr 1fr;gap:7px}.roomrow{grid-template-columns:minmax(0,1fr) 76px 76px 76px}.room-timer-row{grid-template-columns:repeat(2,minmax(0,1fr))}.duel-settings-row{grid-template-columns:1fr 1fr 1fr 1fr 1.15fr}.countdown-field label{font-size:13px}.countdown-field input{font-size:17px}.reset-field button{font-size:23px;min-height:40px}.roomrow .field button{width:100%;padding-left:5px;padding-right:5px;font-size:10px}.kick-command{grid-template-columns:1fr 1fr}.kick-mode-layout{grid-template-columns:minmax(0,1.12fr) minmax(108px,.88fr);gap:6px}.kick-mode-stack{gap:6px}.kick-mode-stack select{min-height:40px;font-size:11px;padding-left:8px;padding-right:24px}.kickall-side{min-height:86px;font-size:12px;padding:5px 7px}.actions{grid-template-columns:1fr 1fr}.lists-grid{gap:7px}#userList,#targetList{height:210px}.listtitle span{font-size:11px}.trash-btn{width:32px;min-height:30px;height:30px;font-size:16px}table{font-size:11px}th:nth-child(1),td:nth-child(1){width:25px}td,th{padding:4px}td input{padding:7px;font-size:11px;min-height:34px}.kick-socket-name{font-size:9px}.kick-socket-state{font-size:7px}.kick-socket-detail{font-size:8px}.kick-socket-stat b{font-size:8px}.kick-socket-last{font-size:7px}.wallet-caption{font-size:12px;min-width:28px}.status-balloon{width:10px;height:10px}}
+@media(max-width:380px){.grid{grid-template-columns:1fr}.field.wide{grid-column:auto}.roomrow{grid-template-columns:minmax(0,1fr) 68px 68px 68px}.room-timer-row{grid-template-columns:repeat(2,minmax(0,1fr))}.roomrow .field button{font-size:9px;padding-left:3px;padding-right:3px}.actions{grid-template-columns:1fr}.cmdrow{grid-template-columns:1fr}.timer-tools{grid-template-columns:1fr 1fr}.lists-grid{grid-template-columns:1fr}#userList,#targetList{height:180px}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 
+    .login-actions{margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .login-actions button{min-height:42px}
+
+    .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 10px;padding:4px;background:rgba(15,23,42,.88);border:1px solid #263449;border-radius:14px;position:sticky;top:8px;z-index:20;backdrop-filter:blur(10px)}
+    .tab-btn{min-height:44px;border:0;background:transparent;color:#94a3b8;border-radius:10px;font-weight:800;letter-spacing:.4px}
+    .tab-btn.active{background:#2563eb;color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.28)}
+    .tab-panel{display:none}
+    .tab-panel.active{display:block;animation:fadeUp .25s ease both}
+
+/* ===== PREMIUM UI SKIN ===== */
+:root{--bg:#030712;--panel:rgba(10,17,32,.82);--panel2:rgba(15,23,42,.74);--line:rgba(148,163,184,.16);--muted:#8190a8;--text:#f8fafc;--blue:#3b82f6;--cyan:#22d3ee;--violet:#8b5cf6;--green:#22c55e;--red:#ef4444}
+html{background:#020617}body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(900px 450px at 8% -10%,rgba(59,130,246,.24),transparent 60%),radial-gradient(700px 420px at 100% 15%,rgba(139,92,246,.18),transparent 58%),radial-gradient(700px 500px at 50% 100%,rgba(34,211,238,.08),transparent 65%),#020617;letter-spacing:.1px}.wrap{max-width:980px;padding:14px}.hero{position:relative;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 4px 14px}.brand-wrap{display:flex;align-items:center;gap:11px}.brand-mark{width:104px;height:72px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;border-radius:12px;background:rgba(2,6,23,.18);overflow:hidden;box-shadow:0 0 22px rgba(59,130,246,.18),inset 0 1px rgba(255,255,255,.08)}.brand-mark img{display:block;width:100%;height:100%;object-fit:contain;object-position:center}.brand-mark.logo-failed::after{content:"MIGSOCK";font-weight:900;font-size:14px;letter-spacing:1px;color:#60a5fa}.top h1{font-size:24px;font-weight:900;letter-spacing:1.5px}.brand-sub{margin-top:2px;color:#60a5fa;font-size:10px;font-weight:900;letter-spacing:1.6px;text-transform:uppercase}.brand-sub span{color:#3b82f6;margin:0 3px}.hero-chip{display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid rgba(34,197,94,.2);border-radius:999px;background:rgba(34,197,94,.07);font-size:9px;font-weight:900;letter-spacing:1px;color:#86efac}.hero-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 10px #22c55e;animation:pulseOnline 1.8s ease-in-out infinite}
+.tabs{top:7px;margin-bottom:12px;padding:5px;border-radius:16px;background:rgba(3,7,18,.74);border:1px solid rgba(148,163,184,.14);box-shadow:0 12px 32px rgba(0,0,0,.25),inset 0 1px rgba(255,255,255,.04)}.tab-btn{position:relative;min-height:46px;border-radius:12px;color:#71809a;font-size:12px;letter-spacing:1.1px;background:transparent}.tab-btn.active{background:linear-gradient(135deg,#2563eb,#4f46e5);box-shadow:0 8px 24px rgba(37,99,235,.28),inset 0 1px rgba(255,255,255,.22);color:white}.tab-btn.active:after{content:"";position:absolute;left:25%;right:25%;bottom:3px;height:2px;border-radius:9px;background:rgba(255,255,255,.85)}
+.panel{position:relative;overflow:hidden;background:linear-gradient(145deg,rgba(15,23,42,.88),rgba(5,11,23,.82));border:1px solid var(--line);border-radius:17px;padding:12px;margin-bottom:11px;box-shadow:0 14px 34px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.035);backdrop-filter:blur(14px)}.panel:before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,rgba(59,130,246,.035),transparent 35%,rgba(139,92,246,.025));}.panel:hover{border-color:rgba(96,165,250,.22)}
+.field label,.listtitle span{font-size:9px!important;text-transform:uppercase;letter-spacing:1px;font-weight:850;color:#7f8da5!important}.field label{margin-bottom:5px}input,select{background:rgba(2,6,23,.72);border-color:rgba(100,116,139,.27);border-radius:11px;color:#f8fafc;box-shadow:inset 0 1px rgba(255,255,255,.025)}input:hover,select:hover{border-color:rgba(96,165,250,.38)}input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.12),0 0 18px rgba(59,130,246,.08)}button{border-color:rgba(148,163,184,.16);border-radius:11px;background:linear-gradient(180deg,#1b273c,#111a2b);box-shadow:0 6px 14px rgba(0,0,0,.14),inset 0 1px rgba(255,255,255,.06);font-size:11px;letter-spacing:.35px}button:hover{filter:brightness(1.13);transform:translateY(-1px)}button:active{transform:translateY(1px) scale(.98)}button.primary{background:linear-gradient(135deg,#2563eb,#4f46e5);border-color:rgba(147,197,253,.22);box-shadow:0 8px 22px rgba(37,99,235,.23),inset 0 1px rgba(255,255,255,.18)}button.danger{background:linear-gradient(135deg,#dc2626,#991b1b);border-color:rgba(248,113,113,.18);box-shadow:0 8px 22px rgba(220,38,38,.16)}button.green{background:linear-gradient(135deg,#059669,#166534);border-color:rgba(110,231,183,.18)}.reset-timer{background:linear-gradient(135deg,#475569,#1e293b)}
+#rows tr{transition:background .18s}#rows tbody tr:hover{background:rgba(59,130,246,.055)}table{background:rgba(3,7,18,.46);border:1px solid rgba(148,163,184,.09);border-radius:13px}th{background:rgba(30,41,59,.42);text-transform:uppercase;letter-spacing:.7px;font-size:9px;padding:9px;color:#71809a}td{border-bottom-color:rgba(51,65,85,.42);padding:7px}.status-balloon{box-shadow:0 0 0 3px rgba(100,116,139,.08)}.status-balloon.online{box-shadow:0 0 0 3px rgba(34,197,94,.1),0 0 12px rgba(34,197,94,.3)}
+#userList,#targetList{background:rgba(2,6,23,.55);border-color:rgba(100,116,139,.2);border-radius:13px}#userList .user-item,#targetList .target-item{border-bottom-color:rgba(51,65,85,.38);transition:background .15s,transform .15s}#userList .user-item:hover,#targetList .target-item:hover{background:rgba(59,130,246,.07);transform:translateX(2px)}#userList .user-check{accent-color:#3b82f6}.trash-btn{background:rgba(220,38,38,.12)!important;border-color:rgba(248,113,113,.18)!important}.kick-socket-track{background:#020617;border-color:rgba(100,116,139,.18)}
+@media(max-width:600px){.wrap{padding:8px}.hero{padding:8px 2px 11px}.brand-mark{width:60px;height:48px;border-radius:10px}.top h1{font-size:20px}.brand-sub{font-size:8px;letter-spacing:1.1px}.hero-chip{padding:6px 8px;font-size:8px}.panel{border-radius:15px;padding:10px}.tab-btn{min-height:44px}}
+@media(prefers-reduced-motion:reduce){.hero-dot{animation:none}}
+
+
+.setting-row{display:grid;gap:8px;align-items:end}.troop-row{grid-template-columns:minmax(130px,2fr) minmax(52px,.65fr) minmax(52px,.65fr) minmax(130px,2fr) minmax(100px,1.1fr)}.pass-row{grid-template-columns:minmax(0,3fr) minmax(118px,1fr);margin-top:9px}.save-row{grid-template-columns:minmax(0,3fr) minmax(90px,1fr) minmax(90px,1fr)}.setting-row .field{min-width:0}.setting-row input,.setting-row button{width:100%;min-width:0}.setting-row button{white-space:nowrap}
+@media(max-width:560px){.wrap{padding:8px}.troop-row{grid-template-columns:minmax(105px,1.7fr) minmax(42px,.65fr) minmax(42px,.65fr) minmax(105px,1.7fr) minmax(82px,1fr)}.save-row{grid-template-columns:minmax(0,2fr) minmax(70px,.75fr) minmax(70px,.75fr)}.pass-row{grid-template-columns:minmax(0,2fr) minmax(94px,1fr)}.setting-row{gap:6px}.setting-row input,.setting-row button{font-size:12px;padding-left:8px;padding-right:8px}}
+
+
+/* ===== MOBILE NEON UI V2 ===== */
+:root{--neon-cyan:#16d9ff;--neon-blue:#278cff;--neon-violet:#7357ff;--neon-green:#20e78a;--glass:rgba(7,18,39,.82);--glass2:rgba(4,13,29,.88)}
+html,body{min-height:100%;background:#020815}
+body{background:radial-gradient(700px 420px at 50% -80px,rgba(0,145,255,.20),transparent 62%),radial-gradient(520px 420px at 100% 28%,rgba(111,71,255,.18),transparent 65%),linear-gradient(180deg,#031024 0%,#020714 48%,#01040b 100%);color:#f7fbff;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.25;background:linear-gradient(125deg,transparent 0 58%,rgba(26,141,255,.08) 58.2% 59%,transparent 59.2% 68%,rgba(113,76,255,.06) 68.2% 69%,transparent 69.2%);z-index:-1}
+.wrap{max-width:980px;padding:14px 16px 24px}
+.hero{padding:12px 4px 16px;margin-bottom:8px}
+.brand-wrap{gap:14px}.brand-mark{width:112px;height:78px;background:transparent;box-shadow:none}.brand-mark img{filter:drop-shadow(0 8px 14px rgba(0,150,255,.22))}.top h1{font-size:29px;line-height:1;font-weight:950;letter-spacing:2px}.brand-sub{font-size:11px;letter-spacing:2px;color:#8dbfff;margin-top:6px}.hero-chip{min-width:122px;justify-content:center;padding:10px 14px;border-radius:999px;border:1px solid rgba(32,231,138,.5);background:rgba(10,55,45,.22);font-size:12px;box-shadow:0 0 24px rgba(32,231,138,.08),inset 0 1px rgba(255,255,255,.08)}.hero-dot{width:10px;height:10px}
+.tabs{margin-bottom:14px;padding:5px;border-radius:19px;background:rgba(2,8,20,.78);border:1px solid rgba(103,142,204,.20);box-shadow:0 14px 34px rgba(0,0,0,.30),inset 0 1px rgba(255,255,255,.04)}.tab-btn{min-height:56px;border-radius:15px;font-size:16px;font-weight:900;letter-spacing:1.4px}.tab-btn.active{background:linear-gradient(105deg,#13bdf5 0%,#376cff 45%,#7248ff 100%);box-shadow:0 10px 30px rgba(39,140,255,.28),inset 0 1px rgba(255,255,255,.28)}.tab-btn.active:before{content:"⚙";margin-right:10px}.tab-btn#tabDuel.active:before{content:"⚔"}.tab-btn.active:after{left:22%;right:22%;bottom:5px;height:3px}
+.panel{background:linear-gradient(145deg,rgba(7,24,49,.86),rgba(3,11,25,.90));border:1px solid rgba(22,183,255,.30);border-radius:19px;padding:16px;margin-bottom:13px;box-shadow:0 16px 38px rgba(0,0,0,.28),0 0 30px rgba(0,111,255,.055),inset 0 1px rgba(255,255,255,.045);backdrop-filter:blur(18px)}.panel:after{content:"";position:absolute;left:18px;right:18px;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(36,201,255,.65),transparent);opacity:.75}
+.section-heading{position:relative;display:flex;align-items:center;gap:11px;margin:0 0 14px;padding:1px 0 12px;border-bottom:1px solid rgba(54,116,190,.20)}.section-heading .section-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:11px;background:rgba(0,190,255,.09);color:#45d9ff;font-size:22px;filter:drop-shadow(0 0 9px rgba(22,217,255,.24))}.section-heading strong{display:block;font-size:17px;letter-spacing:.2px;color:#eaf8ff}.section-heading small{display:block;margin-top:3px;color:#7ea4c9;font-size:10px;letter-spacing:.2px}.compact-heading{margin-bottom:10px}.troop-heading{align-items:center}.count-pill{margin-left:auto;border:1px solid rgba(32,231,138,.55);background:rgba(32,231,138,.06);color:#5df3ac;border-radius:999px;padding:7px 11px;font-size:10px;font-weight:900;white-space:nowrap}
+.field label,.listtitle span{color:#8eb0d3!important;font-size:10px!important;font-weight:900;letter-spacing:1.1px}.field label{margin-bottom:6px}
+input,select{min-height:48px;background:linear-gradient(180deg,rgba(3,14,31,.94),rgba(2,9,21,.92));border:1px solid rgba(69,130,202,.42);border-radius:13px;box-shadow:inset 0 1px rgba(255,255,255,.025),0 0 0 1px rgba(0,0,0,.12);font-size:14px}input:focus,select:focus{border-color:rgba(22,217,255,.8);box-shadow:0 0 0 3px rgba(22,217,255,.10),0 0 20px rgba(22,140,255,.10)}
+button{min-height:48px;border-radius:13px;font-size:12px;font-weight:900;letter-spacing:.45px;background:linear-gradient(180deg,#152b48,#0b1930);border:1px solid rgba(85,145,208,.32);box-shadow:0 8px 18px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.08)}button.primary{background:linear-gradient(110deg,#11c6f6,#3c72ff 52%,#7547ff);box-shadow:0 10px 24px rgba(39,140,255,.24),inset 0 1px rgba(255,255,255,.22)}button.danger{background:linear-gradient(110deg,#ef476f,#bd214c);box-shadow:0 10px 24px rgba(220,38,90,.20)}button.green{background:linear-gradient(110deg,#16d98a,#079b79);box-shadow:0 10px 24px rgba(32,231,138,.15)}
+.troop-row{grid-template-columns:minmax(0,2fr) minmax(74px,.72fr) minmax(74px,.72fr) minmax(128px,1fr)}.pass-row{grid-template-columns:minmax(0,3fr) minmax(128px,1fr)}.save-row{grid-template-columns:minmax(0,3fr) minmax(100px,1fr) minmax(100px,1fr)}
+#rows{margin-top:2px}table{border:1px solid rgba(53,116,187,.24);border-radius:15px;background:rgba(2,10,23,.58)}th{padding:11px 9px;background:rgba(17,43,74,.44);color:#83a7cc;font-size:9px}td{padding:8px 9px;border-bottom-color:rgba(52,96,145,.25)}td input{min-height:40px;padding:8px 10px;background:rgba(2,10,23,.74)}#rows tr:last-child td{border-bottom:0}
+.status-balloon{width:12px;height:12px}.status-balloon.online{box-shadow:0 0 0 3px rgba(32,231,138,.12),0 0 14px rgba(32,231,138,.48)}
+.login-actions{margin-top:13px}.login-actions button{min-height:50px}
+.lists-grid{gap:10px;margin-top:0}#userList,#targetList{height:230px;background:rgba(1,8,19,.74);border:1px solid rgba(58,119,183,.30);border-radius:14px;padding:6px}.listtitle{min-height:34px}.listtitle span:first-child{color:#a9c9e8!important;font-size:11px!important}.listtitle span:last-child{color:#4fdfff!important;font-weight:900}
+#userList .user-item,#targetList .target-item{padding:10px;border-bottom-color:rgba(58,101,145,.25)}#userList .user-check{width:20px;height:20px;accent-color:#22baff}
+.roomrow{grid-template-columns:minmax(0,1fr) 100px 100px 100px;margin-top:11px}.room-timer-row{grid-template-columns:repeat(2,minmax(0,1fr))}.duel-settings-row{grid-template-columns:1fr 1fr 1fr 1fr 1.15fr}.kick-mode-layout{grid-template-columns:minmax(0,1fr) minmax(135px,.55fr);gap:10px}.kick-mode-stack{gap:9px}.kickall-side{min-height:105px;background:linear-gradient(135deg,#f04469,#a91649);box-shadow:0 14px 28px rgba(239,68,68,.22),inset 0 1px rgba(255,255,255,.15);font-size:15px}
+.reset-timer{background:linear-gradient(135deg,#174f83,#17304e);font-size:24px!important}
+@media(max-width:700px){.wrap{padding:9px 10px 20px}.hero{padding:7px 1px 13px}.brand-mark{width:74px;height:58px}.top h1{font-size:24px}.brand-sub{font-size:9px}.hero-chip{min-width:106px;padding:9px 11px;font-size:10px}.tabs{margin-bottom:11px}.tab-btn{min-height:50px;font-size:14px}.panel{padding:13px;border-radius:17px}.section-heading{margin-bottom:11px}.section-heading strong{font-size:15px}.section-heading small{font-size:9px}.section-icon{transform:scale(.92)}.troop-row{grid-template-columns:minmax(0,1.6fr) minmax(58px,.68fr) minmax(58px,.68fr) minmax(100px,.95fr)}.pass-row{grid-template-columns:minmax(0,2fr) minmax(104px,.9fr)}.save-row{grid-template-columns:minmax(0,2fr) minmax(74px,.72fr) minmax(74px,.72fr)}.roomrow{grid-template-columns:minmax(0,1fr) 78px 78px 78px}.roomrow .field button{font-size:9px}.duel-settings-row{grid-template-columns:1fr 1fr 1fr 1fr 1.15fr}.kick-mode-layout{grid-template-columns:minmax(0,1fr) 115px}.kickall-side{min-height:91px;font-size:13px}.count-pill{padding:6px 9px}}
+@media(max-width:520px){.wrap{padding:8px}.hero{align-items:center}.brand-mark{width:62px;height:52px}.top h1{font-size:21px;letter-spacing:1.5px}.brand-sub{font-size:8px;letter-spacing:1.1px}.hero-chip{min-width:88px;padding:8px 9px;font-size:9px}.hero-dot{width:8px;height:8px}.panel{padding:11px;margin-bottom:9px}.section-heading .section-icon{width:30px;height:30px;font-size:19px}.section-heading strong{font-size:14px}.section-heading small{font-size:8px}.troop-row{grid-template-columns:minmax(0,1.55fr) minmax(54px,.68fr) minmax(54px,.68fr) minmax(94px,.9fr)}.pass-row{grid-template-columns:minmax(0,1.8fr) minmax(96px,.9fr)}.save-row{grid-template-columns:minmax(0,1.8fr) minmax(70px,.7fr) minmax(70px,.7fr)}input,select{min-height:44px;font-size:13px}.setting-row input,.setting-row button{font-size:11px;padding-left:7px;padding-right:7px}.roomrow{grid-template-columns:minmax(0,1fr) 66px 66px 66px}.roomrow .field button{font-size:8px;letter-spacing:.1px}.room-timer-row{grid-template-columns:repeat(2,minmax(0,1fr))}.duel-settings-row{grid-template-columns:1fr 1fr 1fr 1fr 1.05fr}.kick-mode-layout{grid-template-columns:minmax(0,1fr) 105px}.kickall-side{min-height:84px;font-size:12px}.lists-grid{gap:7px}#userList,#targetList{height:205px}th{font-size:8px;padding:9px 5px}td{padding:6px 5px}td input{font-size:10px;padding:7px 6px}.count-pill{font-size:8px}.login-actions button{min-height:46px}}
+@media(max-width:390px){.wrap{padding:7px}.brand-mark{width:56px;height:48px}.top h1{font-size:19px}.hero-chip{min-width:80px;font-size:8px}.troop-row{grid-template-columns:minmax(0,1.4fr) minmax(50px,.65fr) minmax(50px,.65fr) minmax(88px,.85fr)}.save-row{grid-template-columns:minmax(0,1fr) 66px 66px}.pass-row{grid-template-columns:minmax(0,1fr) 90px}.roomrow{grid-template-columns:minmax(0,1fr) 59px 59px 59px}.duel-settings-row{grid-template-columns:1fr 1fr 1fr 1fr}.kick-mode-layout{grid-template-columns:minmax(0,1fr) 96px}.kickall-side{font-size:11px}.section-heading small{display:none}}
+
+/* MIGSOCK mobile-first visual refresh v2 — CSS only */
+:root{color-scheme:dark;--bg:#070b18;--surface:#10172b;--surface2:#141e36;--line:rgba(148,163,255,.18);--text:#f4f6ff;--muted:#9ba9c8;--cyan:#39e7ff;--blue:#4f8cff;--violet:#a16bff;--pink:#ff5cba;--green:#3ee6a8;--red:#ff5577}
+html{background:var(--bg);scroll-behavior:smooth}body{background:radial-gradient(ellipse at 10% -10%,rgba(72,87,255,.24),transparent 42%),radial-gradient(ellipse at 100% 18%,rgba(0,217,255,.11),transparent 34%),linear-gradient(180deg,#0b1022 0%,#070b18 60%,#090d1b 100%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.45;padding-bottom:env(safe-area-inset-bottom)}
+.wrap{max-width:760px;padding:clamp(10px,3vw,20px);padding-top:max(10px,env(safe-area-inset-top))}.top.hero{position:relative;overflow:hidden;padding:15px 16px;border:1px solid rgba(92,145,255,.35);border-radius:22px;background:linear-gradient(120deg,rgba(23,39,81,.96),rgba(13,23,46,.94) 58%,rgba(20,27,61,.96));box-shadow:0 14px 35px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.06)}.top.hero:after{content:"";position:absolute;width:150px;height:150px;border-radius:50%;right:-50px;top:-90px;background:rgba(57,231,255,.12);filter:blur(2px);pointer-events:none}.brand-mark{width:47px;height:47px;border-radius:15px;background:linear-gradient(145deg,rgba(56,189,248,.17),rgba(129,88,255,.19));border:1px solid rgba(104,180,255,.3);display:grid;place-items:center;box-shadow:inset 0 1px rgba(255,255,255,.1)}.brand-mark img{width:39px;height:39px;object-fit:contain}.top h1{font-size:clamp(21px,5.5vw,27px);font-weight:900;letter-spacing:.4px;background:linear-gradient(90deg,#fff,#9feeff 65%,#cbb8ff);-webkit-background-clip:text;background-clip:text;color:transparent}.brand-sub{color:#aebde0;font-size:10px;letter-spacing:1.5px;font-weight:800}.hero-chip{border:1px solid rgba(62,230,168,.27);background:rgba(62,230,168,.08);color:#7cf4c3;border-radius:999px;padding:8px 11px;box-shadow:0 0 22px rgba(62,230,168,.05)}
+.tabs{position:sticky;top:8px;z-index:20;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:12px 0;padding:5px;border:1px solid rgba(143,164,255,.19);border-radius:16px;background:rgba(10,15,31,.92);box-shadow:0 8px 24px rgba(0,0,0,.24);backdrop-filter:blur(18px)}.tab-btn{border:1px solid transparent!important;border-radius:11px!important;min-height:43px;padding:9px 5px!important;background:transparent!important;color:#9eaccd!important;font-size:11px!important;letter-spacing:.6px;font-weight:900}.tab-btn.active{background:linear-gradient(110deg,#277cf6,#7654ff)!important;color:white!important;border-color:rgba(255,255,255,.15)!important;box-shadow:0 5px 15px rgba(75,102,255,.3)}
+.panel{border:1px solid var(--line);border-radius:19px;background:linear-gradient(145deg,rgba(19,28,52,.97),rgba(12,18,35,.97));padding:13px;box-shadow:0 10px 26px rgba(0,0,0,.19),inset 0 1px rgba(255,255,255,.035);backdrop-filter:blur(10px)}.section-card{position:relative;overflow:hidden}.section-heading{gap:10px;margin-bottom:13px}.section-heading strong{font-size:14px;letter-spacing:.1px;color:#f5f7ff}.section-heading small{font-size:11px;color:var(--muted);line-height:1.45}.section-icon{width:38px;height:38px;min-width:38px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(145deg,rgba(57,231,255,.16),rgba(111,87,255,.2));border:1px solid rgba(115,166,255,.22);font-size:18px}.count-pill{border-radius:999px;background:rgba(57,231,255,.1);border:1px solid rgba(57,231,255,.2);color:#75f0ff;padding:5px 9px;font-size:10px;font-weight:900}
+.field label,.listtitle span{color:#b5c2e1;font-size:11px;font-weight:800;letter-spacing:.35px}input,select{background:#080e20!important;color:#f7f8ff!important;border:1px solid #2b385a!important;border-radius:12px!important;min-height:45px;padding:10px 12px!important;box-shadow:inset 0 1px rgba(255,255,255,.025);font-size:14px}input::placeholder{color:#657392}input:focus,select:focus{border-color:#54dfff!important;box-shadow:0 0 0 3px rgba(57,231,255,.12),0 0 20px rgba(57,231,255,.05)!important;outline:none}button{border-radius:12px!important;min-height:44px;border:1px solid rgba(147,174,255,.18)!important;background:linear-gradient(135deg,#1b2a4b,#172039)!important;color:#f6f7ff!important;font-size:11px;font-weight:900;letter-spacing:.3px;box-shadow:0 4px 12px rgba(0,0,0,.13);transition:transform .15s ease,filter .15s ease,box-shadow .15s ease}button:active{transform:scale(.98)}button.primary{background:linear-gradient(110deg,#16b9e8,#367dff 54%,#8154f7)!important;border-color:rgba(130,207,255,.3)!important;box-shadow:0 7px 17px rgba(52,115,255,.2)}button.danger{background:linear-gradient(110deg,#fb5479,#bb326d)!important;border-color:rgba(255,141,174,.25)!important}.green{background:linear-gradient(110deg,#0baf8b,#20c98b)!important}.actions{gap:9px}.actions button{min-height:47px}.roomrow{gap:6px}.roomrow button{padding:8px 5px;font-size:10px}.lists-grid{gap:9px}#userList,#targetList{height:clamp(150px,27vh,230px);background:#080e20;border:1px solid #2a3655;border-radius:13px;padding:5px}#userList .user-item,#targetList .target-item{padding:10px 8px;border-bottom-color:rgba(126,149,200,.13);font-size:12px}#userList .user-check{accent-color:#4f8cff;width:20px;height:20px}#targetList .target-item{background:rgba(130,92,255,.045)}.trash-btn{min-height:32px!important;height:32px!important;background:rgba(255,85,119,.12)!important;color:#ff8da5!important;border-color:rgba(255,85,119,.2)!important}table{border-radius:12px;background:rgba(7,12,26,.7)}th{color:#a8b8dd;background:rgba(79,140,255,.09);font-size:10px;letter-spacing:.35px}th,td{border-bottom:1px solid rgba(126,149,200,.14);padding:9px 7px}td{font-size:11px}.status-balloon.online{background:var(--green)}.wallet-caption{color:var(--cyan)}.flat-progress{background:#080e20;border-radius:99px;overflow:hidden}.flat-progress-fill{background:linear-gradient(90deg,#26d8f3,#4f8cff,#a16bff)!important}.flat-summary{gap:7px}.flat-summary span{background:rgba(79,140,255,.08);border:1px solid rgba(143,164,255,.15);padding:7px 8px;border-radius:10px}.tab-panel{animation:fadeUp .22s ease both}
+@media(max-width:600px){.wrap{padding:9px;padding-top:max(9px,env(safe-area-inset-top))}.top.hero{padding:12px;border-radius:18px}.brand-mark{width:42px;height:42px}.brand-mark img{width:35px;height:35px}.hero-chip{font-size:9px;padding:7px 9px}.panel{padding:11px;border-radius:16px;margin-bottom:9px}.section-heading{margin-bottom:11px}.setting-row{gap:8px!important}.field label{font-size:10px;margin-bottom:5px}.troop-row{grid-template-columns:minmax(0,1fr) 58px 58px!important}.troop-row .field:last-child{grid-column:1/-1}.troop-row .field:last-child button{width:100%}.save-row{grid-template-columns:minmax(0,1fr) 70px 70px!important}.pass-row{grid-template-columns:minmax(0,1fr) 92px!important}.lists-grid{grid-template-columns:1fr 1fr;gap:7px}.listtitle{margin-bottom:7px}.listtitle span{font-size:10px}.roomrow{grid-template-columns:minmax(0,1fr) 62px 62px!important}.roomrow>*:last-child{grid-column:1/-1}.roomrow input{min-width:0}.roomrow button{font-size:10px}.kick-mode-layout{grid-template-columns:minmax(0,1fr) 88px!important}.duel-settings-row,.settings-row{grid-template-columns:1fr 1fr!important}.kickall-side{font-size:10px}.kick-socket-name{font-size:10px}.kick-socket-detail{font-size:9px}table{min-width:540px}.troop-table-card{overflow:hidden}.troop-table-card table{min-width:0;table-layout:fixed}.troop-table-card th,.troop-table-card td{padding:8px 4px;font-size:10px;overflow-wrap:anywhere}.troop-table-card th:nth-child(1){width:24px}.troop-table-card th:nth-child(2){width:27%}.troop-table-card th:nth-child(3){width:43%}.troop-table-card th:nth-child(4){width:22%}.password-wrap{gap:3px}.password-wrap input{padding:7px 5px!important;font-size:11px;min-width:0}.wallet-caption{font-size:11px;min-width:22px}.status-balloon{width:9px;height:9px}.actions.login-actions button{font-size:10px;padding:8px 5px}.tab-btn{min-height:42px}.flat-report{overflow-x:auto}}
+@media(max-width:370px){.wrap{padding:7px}.top.hero{padding:10px}.brand-sub{font-size:8px;letter-spacing:1px}.hero-chip{padding:6px;font-size:8px}.save-row{grid-template-columns:minmax(0,1fr) 56px 56px!important}.pass-row{grid-template-columns:minmax(0,1fr) 76px!important}.troop-row{grid-template-columns:minmax(0,1fr) 48px 48px!important}.roomrow{grid-template-columns:minmax(0,1fr) 54px 54px!important}.section-icon{width:34px;height:34px;min-width:34px}.section-heading strong{font-size:12px}input,select{padding:9px 8px!important;font-size:12px}button{font-size:10px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+
+/* Mobile-first premium refresh: visual-only overrides */
+:root{color-scheme:dark;--bg:#070b18;--panel:rgba(15,23,48,.92);--line:rgba(118,145,255,.22);--text:#f5f7ff;--muted:#9eafd2;--cyan:#28e0e8;--blue:#4f7cff;--violet:#a855f7;--pink:#f472b6;--green:#34d399;--shadow:0 16px 42px rgba(0,0,0,.28)}
+html{background:var(--bg)!important}body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif!important;background:radial-gradient(ellipse at 12% -8%,rgba(65,89,220,.28),transparent 42%),radial-gradient(ellipse at 100% 20%,rgba(168,85,247,.12),transparent 35%),var(--bg)!important;color:var(--text)!important;letter-spacing:.01em}.wrap{max-width:1060px!important;padding:12px!important}.hero{padding:12px 4px 18px!important}.brand-mark{width:64px!important;height:58px!important;border-radius:18px!important;background:linear-gradient(145deg,rgba(79,124,255,.18),rgba(40,224,232,.08))!important;border:1px solid rgba(104,151,255,.25)!important;box-shadow:0 8px 28px rgba(59,130,246,.17)!important}.brand-mark img{width:100%!important;height:100%!important;object-fit:contain!important;padding:4px!important}.top h1{font-size:clamp(21px,5vw,27px)!important;letter-spacing:1px!important}.brand-sub{font-size:10px!important;letter-spacing:1.2px!important;color:#8daeff!important}.hero-chip{padding:9px 12px!important;border-radius:14px!important;background:linear-gradient(135deg,rgba(16,185,129,.13),rgba(40,224,232,.08))!important;border-color:rgba(52,211,153,.25)!important;font-size:10px!important}.tabs{position:sticky;top:6px;z-index:20;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important;padding:7px!important;margin:0 0 14px!important;border:1px solid var(--line)!important;border-radius:18px!important;background:rgba(8,13,30,.88)!important;backdrop-filter:blur(18px);box-shadow:var(--shadow)}.tab-btn{min-height:44px!important;border-radius:13px!important;border:1px solid transparent!important;background:rgba(255,255,255,.035)!important;color:#aab9da!important;font-size:11px!important;font-weight:850!important;letter-spacing:.6px!important}.tab-btn::before{display:inline-block;margin-right:6px;font-size:14px}.tab-btn#tabSetting::before{content:"⚙"}.tab-btn#tabDuel::before{content:"⚡"}.tab-btn#tabFlat::before{content:"💰"}.tab-btn.active{background:linear-gradient(120deg,#386cff,#8057ff)!important;color:#fff!important;border-color:rgba(255,255,255,.18)!important;box-shadow:0 6px 20px rgba(87,99,255,.3)!important}.panel,.card,.section,.box-panel,.list-panel{border-radius:20px!important;border:1px solid var(--line)!important;background:linear-gradient(145deg,rgba(19,28,57,.95),rgba(10,16,35,.96))!important;box-shadow:var(--shadow)!important}.panel{padding:15px!important}.panel-title,h2,h3,.section-title{letter-spacing:.1px!important}.field label,label{color:#a9bce2!important;font-weight:750!important;font-size:11px!important;letter-spacing:.35px!important}.field input,input,select,textarea{min-height:46px!important;border-radius:13px!important;border:1px solid rgba(124,153,218,.25)!important;background:rgba(5,10,25,.78)!important;color:#f6f8ff!important;padding:11px 13px!important;font-size:14px!important;box-shadow:inset 0 1px rgba(255,255,255,.025)!important}input:focus,select:focus,textarea:focus{outline:none!important;border-color:#45dce9!important;box-shadow:0 0 0 3px rgba(40,224,232,.12)!important}button,.btn{min-height:44px!important;border-radius:13px!important;font-family:inherit!important;font-weight:850!important;letter-spacing:.25px!important;transition:transform .16s ease,filter .16s ease,box-shadow .16s ease!important}button:active{transform:scale(.98)}button.primary,.primary{background:linear-gradient(120deg,#2879ff,#7355ff)!important;color:white!important;border:1px solid rgba(255,255,255,.14)!important;box-shadow:0 7px 20px rgba(79,124,255,.22)!important}button.green,.green{background:linear-gradient(120deg,#079e91,#12c99a)!important;color:#041a1b!important;border:0!important}button.danger,.danger{background:linear-gradient(120deg,#f04470,#ff784e)!important;color:white!important;border:0!important}button:not(.primary):not(.green):not(.danger):not(.tab-btn){background:linear-gradient(145deg,rgba(40,55,91,.9),rgba(22,31,57,.95))!important;border:1px solid rgba(129,157,220,.22)!important;color:#eaf0ff!important}.listbox,.list-box,.user-list,.target-list{border-radius:15px!important;border:1px solid rgba(124,153,218,.2)!important;background:rgba(4,9,23,.62)!important;overflow:hidden}.listbox button,.list-box button{border-radius:10px!important}.status,.badge,.pill{border-radius:999px!important}.status{font-weight:800!important}.bottom-nav{position:sticky;bottom:6px;z-index:18;margin-top:12px;padding:7px;border:1px solid var(--line);border-radius:18px;background:rgba(8,13,30,.92);backdrop-filter:blur(18px)}
+@media(max-width:640px){.wrap{padding:10px!important}.hero{gap:8px!important}.brand-wrap{gap:9px!important}.brand-mark{width:54px!important;height:50px!important}.top h1{font-size:20px!important}.brand-sub{font-size:9px!important}.hero-chip{padding:8px 9px!important}.panel{padding:12px!important;margin-bottom:11px!important}.panel-title{font-size:15px!important}.field input,input,select,textarea{min-height:48px!important}.tabs{top:4px}.tab-btn{font-size:10px!important;min-height:43px!important;padding:8px 4px!important}.tabs .tab-btn::before{margin-right:4px}.grid,.fields,.form-grid{grid-template-columns:minmax(0,1fr)!important}.panel button{max-width:100%}.wrap table{font-size:12px}}
+@media(max-width:370px){.hero-chip{font-size:9px!important}.brand-mark{width:46px!important;height:44px!important}.top h1{font-size:18px!important}.tab-btn::before{display:block!important;margin:0 0 2px!important}.tab-btn{min-height:50px!important}.wrap{padding:7px!important}}
+@media(prefers-reduced-motion:reduce){button{transition:none!important}}
+
+
+/* Refined compact troop table and elegant room lists */
+.troop-table-card table{width:100%;table-layout:fixed;min-width:0!important;border-collapse:separate;border-spacing:0;overflow:hidden;border-radius:15px}
+.troop-table-card th:nth-child(1),.troop-table-card td:nth-child(1){width:42%}
+.troop-table-card th:nth-child(2),.troop-table-card td:nth-child(2){width:43%}
+.troop-table-card th:nth-child(3),.troop-table-card td:nth-child(3){width:15%;text-align:center}
+.troop-table-card th{font-size:9px;letter-spacing:.2px;padding:8px 6px;white-space:normal}
+.troop-table-card td{padding:6px 5px;min-width:0}
+.troop-table-card td input{width:100%;min-width:0!important;min-height:35px!important;height:35px;padding:6px 8px!important;font-size:12px!important;border-radius:9px!important}
+.troop-table-card .password-wrap{gap:3px;min-width:0}
+.troop-table-card .password-wrap input{flex:1 1 auto;width:0;min-width:0!important;padding:5px 6px!important;font-size:10px!important;letter-spacing:0}
+.troop-table-card .wallet-caption{min-width:20px;font-size:10px;padding:0 1px}
+.troop-table-card .status-balloon{width:10px;height:10px}
+#userList,#targetList{height:clamp(160px,29vh,260px);padding:6px!important;border-radius:16px!important;border:1px solid rgba(115,145,210,.28)!important;background:linear-gradient(160deg,rgba(12,21,45,.96),rgba(5,10,25,.96))!important;box-shadow:inset 0 1px rgba(255,255,255,.035),0 8px 22px rgba(0,0,0,.12);overscroll-behavior:contain}
+#userList .user-item,#targetList .target-item{margin:3px 0;padding:9px 10px!important;min-height:38px;border:1px solid rgba(117,145,205,.12)!important;border-radius:11px;background:rgba(255,255,255,.025);font-size:12px;line-height:1.25;transition:background .15s,border-color .15s,transform .15s}
+#userList .user-item:hover,#targetList .target-item:hover{background:rgba(71,119,255,.11);border-color:rgba(90,151,255,.28)!important;transform:translateY(-1px)}
+#userList .user-check{flex:0 0 auto;width:18px!important;height:18px!important;accent-color:#6c8cff}
+#targetList .target-item{border-left:3px solid #9a7bff!important;background:linear-gradient(90deg,rgba(143,105,255,.09),rgba(255,255,255,.02))}
+.listtitle{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+#userCount,#targetCount{display:inline-flex;align-items:center;justify-content:center;min-width:25px;height:24px;padding:0 7px;border-radius:999px;background:rgba(76,132,255,.15);border:1px solid rgba(110,155,255,.22);color:#cfe0ff;font-size:11px;font-weight:850}
+@media(max-width:600px){.troop-table-card{padding:9px!important}.troop-table-card th:nth-child(1),.troop-table-card td:nth-child(1){width:44%}.troop-table-card th:nth-child(2),.troop-table-card td:nth-child(2){width:41%}.troop-table-card th:nth-child(3),.troop-table-card td:nth-child(3){width:15%}.troop-table-card th,.troop-table-card td{padding:6px 3px!important}.troop-table-card td input{font-size:11px!important;padding:5px 5px!important}.troop-table-card .password-wrap input{font-size:9px!important;padding:4px 3px!important}.troop-table-card .wallet-caption{font-size:9px;min-width:16px}.troop-table-card .section-heading{gap:8px}#userList,#targetList{height:clamp(170px,30vh,260px);padding:4px!important}#userList .user-item,#targetList .target-item{padding:8px 6px!important;font-size:11px;gap:6px}}
+
+/* UI themes: presentation-only overrides; application logic and task controls remain unchanged */
+.ui-switcher{width:100%;box-sizing:border-box;padding:12px!important;margin-top:0}
+.ui-switcher-head{display:block;width:100%;min-width:0}
+.ui-switcher-head strong{display:block;font-size:14px}
+.ui-switcher-head small{display:block;color:var(--muted,#94a3b8);font-size:11px;margin-top:4px}
+#uiTheme{display:block;width:100%;min-width:0;max-width:100%;box-sizing:border-box;padding:10px 12px;border-radius:10px;border:1px solid var(--ui-border,#334155);background:var(--ui-input,#0f172a);color:var(--ui-text,#e5e7eb);font:inherit}
+.sw-ocean{background:linear-gradient(90deg,#082f49 50%,#075985 50%)}.sw-emerald{background:linear-gradient(90deg,#052e2b 50%,#065f46 50%)}
+.sw-compact{background:linear-gradient(90deg,#111827 50%,#374151 50%)}
+.sw-amoled{background:linear-gradient(90deg,#000 50%,#171717 50%)}.sw-purple{background:linear-gradient(90deg,#2e1065 50%,#6d28d9 50%)}
+.sw-crimson{background:linear-gradient(90deg,#450a0a 50%,#b91c1c 50%)}.sw-sunset{background:linear-gradient(90deg,#431407 50%,#ea580c 50%)}
+.sw-rose{background:linear-gradient(90deg,#500724 50%,#be185d 50%)}.sw-slate{background:linear-gradient(90deg,#0f172a 50%,#475569 50%)}
+body[data-ui="amoled"]{background:#000!important;color:#f5f5f5!important;--ui-text:#f5f5f5;--ui-muted:#a3a3a3;--ui-border:#333;--ui-input:#090909;--ui-card:#090909;--ui-accent:#a3a3a3}
+body[data-ui="amoled"] .panel,body[data-ui="amoled"] .section-card{background:#080808!important;color:#f5f5f5!important;border-color:#262626!important;box-shadow:none!important}
+body[data-ui="amoled"] input,body[data-ui="amoled"] textarea,body[data-ui="amoled"] select,body[data-ui="amoled"] .tab-btn,body[data-ui="amoled"] .ui-preset{background:#050505!important;color:#f5f5f5!important;border-color:#333!important}
+body[data-ui="purple"]{background:radial-gradient(circle at 15% 0%,#581c87 0,#2e1065 45%,#10051f 100%)!important;color:#f3e8ff!important;--ui-accent:#c084fc}
+body[data-ui="purple"] .panel,body[data-ui="purple"] .section-card{background:rgba(46,16,101,.9)!important;border-color:#6d28d9!important}
+body[data-ui="purple"] input,body[data-ui="purple"] textarea,body[data-ui="purple"] select{border-color:#7e22ce!important}
+body[data-ui="purple"] .tab-btn.active,body[data-ui="purple"] button.primary{background:#7e22ce!important}
+body[data-ui="crimson"]{background:radial-gradient(circle at 15% 0%,#991b1b 0,#450a0a 48%,#190505 100%)!important;color:#fee2e2!important;--ui-accent:#f87171}
+body[data-ui="crimson"] .panel,body[data-ui="crimson"] .section-card{background:rgba(69,10,10,.92)!important;border-color:#991b1b!important}
+body[data-ui="crimson"] input,body[data-ui="crimson"] textarea,body[data-ui="crimson"] select{border-color:#b91c1c!important}
+body[data-ui="crimson"] .tab-btn.active,body[data-ui="crimson"] button.primary{background:#b91c1c!important}
+body[data-ui="sunset"]{background:radial-gradient(circle at 15% 0%,#c2410c 0,#431407 48%,#1c0903 100%)!important;color:#ffedd5!important;--ui-accent:#fb923c}
+body[data-ui="sunset"] .panel,body[data-ui="sunset"] .section-card{background:rgba(67,20,7,.92)!important;border-color:#9a3412!important}
+body[data-ui="sunset"] input,body[data-ui="sunset"] textarea,body[data-ui="sunset"] select{border-color:#c2410c!important}
+body[data-ui="sunset"] .tab-btn.active,body[data-ui="sunset"] button.primary{background:#c2410c!important}
+body[data-ui="rose"]{background:radial-gradient(circle at 15% 0%,#9d174d 0,#500724 48%,#1f0611 100%)!important;color:#fce7f3!important;--ui-accent:#f472b6}
+body[data-ui="rose"] .panel,body[data-ui="rose"] .section-card{background:rgba(80,7,36,.92)!important;border-color:#9d174d!important}
+body[data-ui="rose"] input,body[data-ui="rose"] textarea,body[data-ui="rose"] select{border-color:#be185d!important}
+body[data-ui="rose"] .tab-btn.active,body[data-ui="rose"] button.primary{background:#be185d!important}
+body[data-ui="slate"]{background:radial-gradient(circle at 15% 0%,#334155 0,#0f172a 48%,#070b12 100%)!important;color:#e2e8f0!important;--ui-accent:#94a3b8}
+body[data-ui="slate"] .panel,body[data-ui="slate"] .section-card{background:rgba(15,23,42,.92)!important;border-color:#475569!important}
+body[data-ui="slate"] input,body[data-ui="slate"] textarea,body[data-ui="slate"] select{border-color:#64748b!important}
+body[data-ui="slate"] .tab-btn.active,body[data-ui="slate"] button.primary{background:#475569!important}
+
+body[data-ui="light"]{background:#eef2f7!important;color:#172033!important;--ui-text:#172033;--ui-muted:#64748b;--ui-border:#cbd5e1;--ui-input:#fff;--ui-card:#fff;--ui-accent:#2563eb}
+body[data-ui="light"] .panel,body[data-ui="light"] .section-card{background:#fff!important;color:#172033!important;border-color:#d7deea!important;box-shadow:0 3px 12px #0f172a0c!important}
+body[data-ui="light"] input,body[data-ui="light"] textarea,body[data-ui="light"] select{background:#fff!important;color:#172033!important;border-color:#cbd5e1!important}
+body[data-ui="light"] label,body[data-ui="light"] .section-heading small,body[data-ui="light"] .api,body[data-ui="light"] .brand-sub{color:#64748b!important}
+body[data-ui="light"] .tab-btn,body[data-ui="light"] .ui-preset{background:#f8fafc!important;color:#172033!important;border-color:#cbd5e1!important}
+body[data-ui="light"] .ui-switcher-head small,body[data-ui="light"] .ui-preset small{color:#64748b!important}
+body[data-ui="ocean"]{background:radial-gradient(circle at 15% 0%,#075985 0,#082f49 45%,#041725 100%)!important;color:#e0f2fe}
+body[data-ui="ocean"] .panel,body[data-ui="ocean"] .section-card{background:rgba(8,47,73,.9)!important;border-color:#155e75!important}
+body[data-ui="ocean"] input,body[data-ui="ocean"] textarea,body[data-ui="ocean"] select{border-color:#0e7490!important}
+body[data-ui="ocean"] .tab-btn.active,body[data-ui="ocean"] button.primary{background:#0369a1!important}
+body[data-ui="emerald"]{background:radial-gradient(circle at 15% 0%,#065f46 0,#052e2b 42%,#02201d 100%)!important;color:#d1fae5}
+body[data-ui="emerald"] .panel,body[data-ui="emerald"] .section-card{background:rgba(6,46,39,.92)!important;border-color:#166534!important}
+body[data-ui="emerald"] input,body[data-ui="emerald"] textarea,body[data-ui="emerald"] select{border-color:#15803d!important}
+body[data-ui="emerald"] .tab-btn.active,body[data-ui="emerald"] button.primary{background:#047857!important}
+body[data-ui="compact"] .wrap{max-width:1100px;padding:6px}
+body[data-ui="compact"] .panel,body[data-ui="compact"] .section-card{padding:8px!important;margin-bottom:7px!important;border-radius:10px!important}
+body[data-ui="compact"] .grid{gap:5px}
+body[data-ui="compact"] input,body[data-ui="compact"] select,body[data-ui="compact"] textarea,body[data-ui="compact"] button{padding-top:6px!important;padding-bottom:6px!important}
+
+/* Theme selection changes presentation only; application logic is unchanged. */
+body[data-ui="midnight"]{font-family:Inter,system-ui,sans-serif;--ui-accent:#3b82f6}
+body[data-ui="midnight"] button{border-radius:10px}
+body[data-ui="light"]{font-family:Arial,Helvetica,sans-serif;letter-spacing:0}
+body[data-ui="light"] button{border-radius:5px;font-weight:700;box-shadow:none!important}
+body[data-ui="ocean"]{font-family:"Trebuchet MS",Arial,sans-serif;--ui-accent:#38bdf8}
+body[data-ui="ocean"] button{border-radius:14px;font-weight:800;letter-spacing:.2px}
+body[data-ui="emerald"]{font-family:Verdana,sans-serif;letter-spacing:0}
+body[data-ui="emerald"] button{border-radius:6px;font-weight:700}
+body[data-ui="compact"]{font-family:Arial,sans-serif;font-size:12px}
+body[data-ui="compact"] button{border-radius:5px;font-size:11px;letter-spacing:0}
+body[data-ui="amoled"]{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:0}
+body[data-ui="amoled"] button{border-radius:2px;box-shadow:none!important;text-transform:uppercase}
+body[data-ui="purple"]{font-family:"Trebuchet MS",sans-serif;--ui-accent:#c084fc}
+body[data-ui="purple"] button{border-radius:16px;font-weight:900;box-shadow:0 0 10px #a855f755}
+body[data-ui="crimson"]{font-family:Impact,"Arial Narrow",sans-serif;letter-spacing:.2px}
+body[data-ui="crimson"] button{border-radius:3px;font-weight:900;text-transform:uppercase;letter-spacing:.5px}
+body[data-ui="sunset"]{font-family:Georgia,serif}
+body[data-ui="sunset"] button{border-radius:22px;font-weight:700}
+body[data-ui="rose"]{font-family:"Trebuchet MS",sans-serif}
+body[data-ui="rose"] button{border-radius:18px;font-weight:700}
+body[data-ui="slate"]{font-family:system-ui,sans-serif;letter-spacing:.15px}
+body[data-ui="slate"] button{border-radius:7px;font-weight:700;box-shadow:0 2px 5px #0003}
+
+/* Compact only the requested Save/Load/KickAll buttons */
+#saveSet,#loadSet{min-height:32px!important;padding:6px 8px!important;font-size:10px!important;letter-spacing:.3px;border-radius:8px}
+#kickAll.kickall-side{min-height:42px!important;padding:8px 10px!important;font-size:11px!important;letter-spacing:.4px;border-radius:10px;box-shadow:0 5px 12px rgba(239,68,68,.16),inset 0 1px rgba(255,255,255,.15)}
+
+/* Final mobile alignment: action buttons share the available width and align to panel edges. */
+.kick-mode-layout.kick-layout-option-b{
+  width:100%!important; max-width:100%!important; box-sizing:border-box!important;
+  margin:8px 0 0!important; padding:0!important; gap:10px!important;
+}
+.kick-layout-option-b .kick-settings-stack,
+.kick-layout-option-b .kick-save-field,
+.kick-layout-option-b .kick-action-grid{min-width:0!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important;}
+.kick-layout-option-b .kick-save-input-row{width:100%!important;grid-template-columns:minmax(0,1fr) 84px!important;gap:7px!important;box-sizing:border-box!important;}
+.kick-layout-option-b .kick-save-input-row input{min-width:0!important;width:100%!important;box-sizing:border-box!important;}
+.kick-layout-option-b .kick-save-input-row #suicideToggle{height:40px!important;min-height:40px!important;box-sizing:border-box!important;}
+.kick-layout-option-b 
+.kick-layout-option-b .kick-action-grid{
+  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:7px!important;margin:0!important;padding:0!important;align-items:stretch!important;
+}
+.kick-layout-option-b .kick-action-grid button,
+.kick-layout-option-b .kick-action-grid #saveSet,
+.kick-layout-option-b .kick-action-grid #loadSet,
+.kick-layout-option-b .kick-action-grid #kickAll{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  height:42px!important;min-height:42px!important;max-height:42px!important;
+  margin:0!important;padding:5px 3px!important;box-sizing:border-box!important;
+  gap:4px!important;font-size:clamp(8px,2.5vw,10px)!important;line-height:1!important;
+  letter-spacing:0!important;white-space:nowrap!important;align-self:stretch!important;
+  border-radius:9px!important;overflow:hidden!important;
+}
+.kick-layout-option-b .kick-btn-icon{font-size:15px!important;flex:0 0 auto!important;}
+@media(max-width:390px){
+ .kick-layout-option-b .kick-save-input-row{grid-template-columns:minmax(0,1fr) 76px!important;gap:5px!important;}
+ .kick-layout-option-b .kick-save-input-row #suicideToggle{height:38px!important;min-height:38px!important;font-size:9px!important;}
+ .kick-layout-option-b .kick-action-grid{gap:5px!important;}
+ .kick-layout-option-b .kick-action-grid button,
+ .kick-layout-option-b .kick-action-grid #saveSet,
+ .kick-layout-option-b .kick-action-grid #loadSet,
+ .kick-layout-option-b .kick-action-grid #kickAll{height:39px!important;min-height:39px!important;max-height:39px!important;padding:4px 2px!important;font-size:8px!important;gap:3px!important;}
+ .kick-layout-option-b .kick-btn-icon{font-size:13px!important;}
+}
+
+/* Header logout icon replaces the READY chip; action uses the existing logout-all flow. */
+.header-logout{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:42px;height:42px;min-height:42px;padding:9px;border:1px solid rgba(248,113,113,.35)!important;border-radius:13px;background:linear-gradient(145deg,rgba(190,24,93,.95),rgba(185,28,28,.95))!important;color:#fff!important;box-shadow:0 5px 16px rgba(185,28,28,.22)!important}
+.header-logout svg{display:block;width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.header-logout:focus-visible{outline:2px solid #fca5a5;outline-offset:3px}
+\n/* Format selectors requested beside each SaveLoad textbox. */\n.save-row{grid-template-columns:minmax(0,1fr) 76px auto auto!important;align-items:end!important}\n.save-row .field:first-child{display:grid;grid-template-columns:minmax(0,1fr) 76px;gap:5px;align-items:end}.save-row .field:first-child label{grid-column:1/-1}.save-row #saveLoadFormat{min-width:0;width:100%;height:36px;box-sizing:border-box}\n.kick-layout-option-b .kick-save-input-row{grid-template-columns:minmax(0,1fr) 62px 78px 78px!important}\n.kick-layout-option-b .kick-save-input-row #saveLoadSetFormat{width:100%;min-width:0;height:36px;min-height:36px;box-sizing:border-box;padding:3px;font-size:10px}\n@media(max-width:390px){.kick-layout-option-b .kick-save-input-row{grid-template-columns:minmax(0,1fr) 48px 66px 66px!important;gap:4px!important}.kick-layout-option-b .kick-save-input-row #saveLoadSetFormat{font-size:9px;padding:2px}}\n/* Hide native file inputs visually without display:none/visibility:hidden.
+   Android Chrome/WebView may refuse to open a picker for a fully hidden input. */
+input[type="file"],.native-file-picker{display:block!important;position:fixed!important;left:0!important;top:0!important;width:1px!important;height:1px!important;min-width:1px!important;min-height:1px!important;padding:0!important;margin:0!important;border:0!important;opacity:0!important;clip-path:inset(50%)!important;overflow:hidden!important;pointer-events:none!important;z-index:-1!important}
+
+
+
+/* Saldo akun dan saldo bank memakai ukuran serta warna yang sama */
+.wallet-caption,
+#bankBalance{
+  font-size:15px!important;
+  line-height:1.35;
+  font-weight:850!important;
+  color:#86efac!important;
+  text-shadow:0 0 10px rgba(74,222,128,.24);
+}
+
+</style>
+
+<style id="suicide-toggle-style">
+.suicide-toggle{display:block;box-sizing:border-box;width:100%;min-width:0;height:30px;padding:0 3px;border-radius:8px;border:1px solid rgba(100,116,139,.55);font-size:9px;font-weight:800;letter-spacing:0;line-height:1;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:clip;transition:transform .12s ease,background .15s ease,border-color .15s ease,box-shadow .15s ease}
+.suicide-toggle:active{transform:scale(.94)}
+.suicide-off{color:#fff;background:rgba(220,38,38,.86);border-color:rgba(248,113,113,.9);box-shadow:0 0 10px rgba(220,38,38,.18)}
+.suicide-on{color:#fff;background:rgba(22,163,74,.9);border-color:rgba(74,222,128,.95);box-shadow:0 0 12px rgba(22,163,74,.25)}
+@media(max-width:390px){.suicide-toggle{padding:0 2px;letter-spacing:0}}
+</style>
+<style id="kick-controls-mobile-layout">
+/* Slim, aligned controls for Save/Load/Kick All; scoped to the requested controls. */
+.kick-mode-layout{align-items:stretch!important;grid-template-columns:minmax(0,1fr) minmax(88px,.42fr)!important;gap:7px!important}
+.kick-mode-stack{grid-template-rows:auto auto!important;align-content:start!important;gap:6px!important}
+.kick-mode-stack .field{align-self:start!important}
+.kick-mode-layout #saveSet,.kick-mode-layout #loadSet{box-sizing:border-box;width:100%;height:29px!important;min-height:29px!important;padding:4px 5px!important;font-size:9px!important;line-height:1!important;letter-spacing:.15px!important;border-radius:7px!important;box-shadow:none!important}
+.kick-mode-layout #kickAll.kickall-side{box-sizing:border-box;width:100%;height:38px!important;min-height:38px!important;padding:5px 4px!important;font-size:10px!important;line-height:1.1!important;letter-spacing:.2px!important;border-radius:9px!important;box-shadow:0 4px 10px rgba(239,68,68,.14)!important;align-self:start!important}
+.kick-mode-layout #suicideToggle{height:28px!important;min-height:28px!important}
+.kick-mode-layout .kick-mode-actions{height:100%;min-height:0;align-self:stretch!important;display:flex!important;flex-direction:column!important;justify-content:space-between!important;gap:6px!important}
+.kick-mode-layout #kickAll.kickall-side{margin-top:auto!important;align-self:stretch!important}
+.kick-mode-layout 
+.kick-mode-layout 
+@media(max-width:600px){
+  .kick-mode-layout{grid-template-columns:minmax(0,1fr) 84px!important;gap:6px!important;margin-top:6px!important}
+  .kick-mode-stack{gap:5px!important}
+  .kick-mode-stack .field input#saveLoadSet{min-height:37px!important;height:37px!important;padding:7px 8px!important;font-size:12px!important}
+  .kick-mode-layout #saveSet,.kick-mode-layout #loadSet{height:27px!important;min-height:27px!important;padding:3px 2px!important;font-size:8px!important;letter-spacing:0!important}
+  .kick-mode-layout #kickAll.kickall-side{height:35px!important;min-height:35px!important;font-size:9px!important;padding:4px 2px!important}
+  .kick-mode-layout #suicideToggle{height:26px!important;min-height:26px!important;font-size:8px!important}
+  .kick-mode-layout 
+  .kick-mode-layout 
+}
+@media(max-width:370px){
+  .kick-mode-layout{grid-template-columns:minmax(0,1fr) 76px!important;gap:5px!important}
+  .kick-mode-layout #saveSet,.kick-mode-layout #loadSet{font-size:7.5px!important}
+  .kick-mode-layout #kickAll.kickall-side{font-size:8px!important}
+}
+
+/* Suicide and Kick All share the action column side by side. */
+.kick-mode-layout .kick-mode-actions{display:flex!important;flex-direction:row!important;align-items:stretch!important;justify-content:stretch!important;gap:5px!important;min-width:0;width:100%;height:auto!important;align-self:stretch!important}
+.kick-mode-layout .kick-mode-actions #suicideToggle,.kick-mode-layout .kick-mode-actions #kickAll{flex:1 1 0!important;width:0!important;min-width:0!important;max-width:none!important;height:30px!important;min-height:30px!important;margin:0!important;padding:3px 2px!important;align-self:stretch!important;box-sizing:border-box!important;font-size:8px!important;line-height:1!important;letter-spacing:0!important;border-radius:7px!important;white-space:nowrap!important}
+@media(max-width:370px){.kick-mode-layout .kick-mode-actions{gap:3px!important}.kick-mode-layout .kick-mode-actions #suicideToggle,.kick-mode-layout .kick-mode-actions #kickAll{font-size:7px!important;padding:2px 1px!important}}
+</style>
+
+<style id="kick-actions-vertical-final">
+/* Keep Suicide above and Kick All below in the same compact mobile action column. */
+.kick-mode-layout .kick-mode-actions{
+  display:flex!important; flex-direction:column!important; align-items:stretch!important;
+  justify-content:space-between!important; gap:7px!important;
+  width:100%!important; min-width:0!important; height:100%!important;
+  min-height:0!important; align-self:stretch!important; box-sizing:border-box!important;
+}
+.kick-mode-layout .kick-mode-actions #suicideToggle,
+.kick-mode-layout .kick-mode-actions #kickAll.kickall-side{
+  display:block!important; flex:0 0 auto!important; width:100%!important;
+  min-width:0!important; max-width:100%!important; margin:0!important;
+  box-sizing:border-box!important; white-space:nowrap!important;
+  border-radius:8px!important; letter-spacing:0!important;
+}
+.kick-mode-layout .kick-mode-actions #suicideToggle{
+  height:29px!important; min-height:29px!important; padding:4px 3px!important;
+  font-size:9px!important; line-height:1!important;
+}
+.kick-mode-layout .kick-mode-actions #kickAll.kickall-side{
+  height:34px!important; min-height:34px!important; padding:5px 3px!important;
+  font-size:9px!important; line-height:1.05!important; align-self:stretch!important;
+}
+@media(max-width:370px){
+  .kick-mode-layout .kick-mode-actions{gap:5px!important}
+  .kick-mode-layout .kick-mode-actions #suicideToggle{font-size:8px!important;padding:3px 2px!important}
+  .kick-mode-layout .kick-mode-actions #kickAll.kickall-side{font-size:8px!important;padding:4px 2px!important}
+}
+</style>
+
+<style id="kick-controls-mobile-layout-fix">
+/* Targeted mobile layout fix: keep SUICIDE above KICK ALL in one right-hand column. */
+.kick-mode-layout{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(88px,0.42fr)!important;align-items:stretch!important;column-gap:8px!important;}
+.kick-mode-layout .kick-mode-stack{min-width:0!important;display:block!important;}
+.kick-mode-layout .kick-mode-actions{display:grid!important;grid-template-rows: minmax(30px,auto) minmax(38px,auto)!important;align-content:space-between!important;justify-items:stretch!important;align-self:stretch!important;min-width:0!important;height:100%!important;gap:8px!important;}
+.kick-mode-layout .kick-mode-actions #suicideToggle,.kick-mode-layout .kick-mode-actions #kickAll{box-sizing:border-box!important;width:100%!important;min-width:0!important;margin:0!important;justify-self:stretch!important;}
+.kick-mode-layout .kick-mode-actions #suicideToggle{grid-row:1!important;min-height:30px!important;height:30px!important;}
+.kick-mode-layout .kick-mode-actions #kickAll{grid-row:2!important;align-self:end!important;min-height:38px!important;height:38px!important;font-size:10px!important;padding:5px 3px!important;}
+.kick-mode-layout #saveSet,.kick-mode-layout #loadSet{min-height:29px!important;height:29px!important;padding:4px 5px!important;font-size:9px!important;}
+@media(max-width:600px){.kick-mode-layout{grid-template-columns:minmax(0,1fr) 84px!important;column-gap:6px!important}.kick-mode-layout .kick-mode-actions{gap:6px!important}.kick-mode-layout .kick-mode-actions #suicideToggle{height:28px!important;min-height:28px!important;font-size:8px!important}.kick-mode-layout .kick-mode-actions #kickAll{height:36px!important;min-height:36px!important;font-size:9px!important}.kick-mode-layout #saveSet,.kick-mode-layout #loadSet{height:28px!important;min-height:28px!important;font-size:8px!important;padding:3px 2px!important}}
+@media(max-width:370px){.kick-mode-layout{grid-template-columns:minmax(0,1fr) 76px!important;column-gap:5px!important}}
+</style>
+
+
+<style id="kick-option-b-final-layout">
+/* Option B: three compact icon buttons in one row; existing Suicide ON/OFF toggle stays beside SaveLoad, not as a separate action button. */
+.kick-mode-layout.kick-layout-option-b{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:9px!important;align-items:stretch!important;margin-top:8px!important}
+.kick-layout-option-b .kick-settings-stack{display:block!important;min-width:0!important}
+.kick-layout-option-b .kick-save-field{min-width:0!important}
+.kick-layout-option-b .kick-save-input-row{display:grid!important;grid-template-columns:minmax(0,1fr) 88px!important;gap:7px!important;align-items:stretch!important}
+.kick-layout-option-b .kick-save-input-row input{width:100%!important;min-width:0!important;box-sizing:border-box!important}
+.kick-layout-option-b .kick-save-input-row #suicideToggle{width:100%!important;min-width:0!important;height:42px!important;min-height:42px!important;margin:0!important;padding:5px 4px!important;font-size:11px!important;border-radius:10px!important;box-sizing:border-box!important;white-space:nowrap!important}
+.kick-layout-option-b .kick-action-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important;width:100%!important;min-width:0!important}
+.kick-layout-option-b .kick-action-grid button{display:flex!important;align-items:center!important;justify-content:center!important;gap:5px!important;box-sizing:border-box!important;width:100%!important;min-width:0!important;height:40px!important;min-height:40px!important;padding:6px 3px!important;border-radius:10px!important;font-size:clamp(9px,2.6vw,11px)!important;line-height:1!important;letter-spacing:0!important;white-space:nowrap!important;box-shadow:0 4px 10px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.1)!important}
+.kick-layout-option-b .kick-btn-icon{display:inline-flex;align-items:center;justify-content:center;font-size:17px;line-height:1;font-weight:900;flex:0 0 auto}
+.kick-layout-option-b .kick-folder-icon{font-size:16px}
+.kick-layout-option-b #suicideToggle{display:flex!important;align-items:center!important;justify-content:center!important;letter-spacing:.1px!important;white-space:nowrap!important}
+.kick-layout-option-b 
+.kick-layout-option-b 
+@media(max-width:390px){.kick-layout-option-b .kick-save-input-row{grid-template-columns:minmax(0,1fr) 76px!important;gap:5px!important}.kick-layout-option-b .kick-save-input-row #suicideToggle{height:39px!important;min-height:39px!important;font-size:10px!important}.kick-layout-option-b{gap:7px!important}.kick-layout-option-b .kick-action-grid{gap:5px!important}.kick-layout-option-b .kick-action-grid button{height:37px!important;min-height:37px!important;gap:3px!important;font-size:9px!important;padding:5px 2px!important}.kick-layout-option-b .kick-btn-icon{font-size:15px}}
+
+/* Requested adjustment: make KICK ALL taller, extending below the Suicide ON/OFF control's lower edge. */
+.kick-layout-option-b .kick-action-grid #kickAll{
+  height:82px!important;
+  min-height:82px!important;
+  align-self:stretch!important;
+}
+@media(max-width:390px){
+  .kick-layout-option-b .kick-action-grid #kickAll{
+    height:76px!important;
+    min-height:76px!important;
+  }
+}
+</style>
+
+<style id='migsock-obsidian-x'>
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Orbitron:wght@500;600;700;800;900&display=swap');
+:root{color-scheme:dark;--x-bg:#080a0f;--x-card:#11151d;--x-card2:#171d27;--x-line:#2b3542;--x-text:#f2f5f8;--x-muted:#8e9baa;--x-lime:#c6ff45;--x-cyan:#56e4ef;--x-red:#ff5574}
+*{box-sizing:border-box}
+html{background:#080a0f!important}
+body{font-family:'DM Sans',Inter,system-ui,sans-serif!important;color:var(--x-text)!important;background:radial-gradient(ellipse at 8% -10%,rgba(198,255,69,.13),transparent 32%),radial-gradient(ellipse at 95% 20%,rgba(86,228,239,.09),transparent 29%),linear-gradient(145deg,#0b0e14,#080a0f 58%,#0c1118)!important;background-attachment:fixed!important;letter-spacing:.1px!important}
+.wrap{max-width:1240px!important;padding:clamp(12px,2.2vw,28px)!important}
+.top.hero{padding:19px 22px!important;margin:0 0 16px!important;border:1px solid #313b48!important;border-radius:20px!important;background:linear-gradient(110deg,#1b222c,#11161e 58%,#17232a)!important;box-shadow:0 20px 55px rgba(0,0,0,.35),inset 0 1px rgba(255,255,255,.07)!important;position:relative!important;overflow:hidden!important}
+.top.hero:after{content:"";position:absolute;width:270px;height:270px;right:-75px;top:-165px;border:1px solid rgba(198,255,69,.35);border-radius:50%;box-shadow:0 0 0 22px rgba(198,255,69,.035),0 0 0 50px rgba(198,255,69,.025),0 0 60px rgba(198,255,69,.09);pointer-events:none}
+.brand-wrap{gap:16px!important;position:relative;z-index:1}
+.brand-mark{width:76px!important;height:64px!important;border-radius:17px!important;background:linear-gradient(145deg,#293443,#111820)!important;border:1px solid #465463!important;box-shadow:0 9px 25px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.13)!important}
+.brand-mark img{filter:drop-shadow(0 4px 8px rgba(0,0,0,.3))}
+.top h1{font-family:Orbitron,'DM Sans',sans-serif!important;font-size:clamp(22px,3vw,30px)!important;letter-spacing:2.7px!important;font-weight:900!important;color:#fff!important}
+.brand-sub{font-family:Orbitron,sans-serif!important;color:var(--x-lime)!important;font-size:9px!important;letter-spacing:2.1px!important}
+.hero-chip{position:relative;z-index:2;border:1px solid rgba(198,255,69,.38)!important;background:rgba(198,255,69,.08)!important;color:var(--x-lime)!important;border-radius:8px!important;padding:9px 12px!important;font-size:9px!important;letter-spacing:1.4px!important}
+.hero-dot{background:var(--x-lime)!important;box-shadow:0 0 12px var(--x-lime)!important}
+.header-logout{position:relative;z-index:2;width:44px!important;height:44px!important;min-height:44px!important;border-radius:13px!important;background:#2b3541!important;border:1px solid #46515e!important;color:#fff!important}
+.tabs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:9px!important;padding:7px!important;margin:0 0 17px!important;border-radius:16px!important;background:#10151d!important;border:1px solid #2b3542!important;box-shadow:0 12px 28px rgba(0,0,0,.24)!important;backdrop-filter:blur(18px)!important}
+.tab-btn{display:flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;min-height:51px!important;border-radius:11px!important;background:transparent!important;color:#8d9baa!important;font-family:Orbitron,'DM Sans',sans-serif!important;font-size:11px!important;font-weight:800!important;letter-spacing:1.2px!important;border:1px solid transparent!important;box-shadow:none!important}
+.tab-btn.active{background:linear-gradient(145deg,#d7ff78,#b9f52d)!important;color:#11170b!important;border:1px solid #e5ff9f!important;box-shadow:0 5px 0 #769c21,0 9px 20px rgba(172,235,49,.17)!important;transform:translateY(-2px)!important}
+.tab-btn.active:after{display:none!important}
+.panel{position:relative!important;overflow:hidden!important;padding:clamp(13px,1.7vw,20px)!important;margin-bottom:13px!important;border:1px solid #293440!important;border-radius:17px!important;background:linear-gradient(145deg,rgba(21,27,37,.97),rgba(14,19,27,.98))!important;box-shadow:0 13px 34px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.045)!important;backdrop-filter:blur(16px)!important}
+.panel:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--x-lime),transparent 82%);opacity:.65;pointer-events:none}
+.panel:hover{border-color:#43505e!important;box-shadow:0 16px 38px rgba(0,0,0,.29),inset 0 1px rgba(255,255,255,.05)!important}
+.field label,.listtitle span{font-family:'DM Sans',sans-serif!important;color:#9ba9b8!important;font-size:9px!important;font-weight:800!important;letter-spacing:1.35px!important;text-transform:uppercase!important}
+input,select,textarea{font-family:'DM Sans',sans-serif!important;color:#f3f6f9!important;background:#0b1017!important;border:1px solid #34404d!important;border-radius:10px!important;box-shadow:inset 0 2px 5px rgba(0,0,0,.22)!important;min-height:44px!important;transition:border-color .2s,box-shadow .2s,transform .2s!important}
+input::placeholder{color:#657384!important}
+input:focus,select:focus,textarea:focus{outline:none!important;border-color:var(--x-lime)!important;box-shadow:0 0 0 3px rgba(198,255,69,.12),0 0 18px rgba(198,255,69,.07)!important}
+button{font-family:'DM Sans',sans-serif!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;min-height:43px!important;padding:10px 14px!important;border:1px solid #3a4654!important;border-radius:11px!important;background:linear-gradient(180deg,#303b49,#202a36)!important;color:#f2f5f8!important;font-size:10px!important;font-weight:900!important;letter-spacing:.75px!important;box-shadow:0 4px 0 #111820,0 8px 15px rgba(0,0,0,.2),inset 0 1px rgba(255,255,255,.13)!important;transition:transform .16s,filter .16s,box-shadow .16s!important}
+button:hover{filter:brightness(1.15)!important;transform:translateY(-2px)!important;box-shadow:0 6px 0 #111820,0 12px 20px rgba(0,0,0,.26),inset 0 1px rgba(255,255,255,.16)!important}
+button:active{transform:translateY(2px)!important;box-shadow:0 1px 0 #111820,inset 0 2px 5px rgba(0,0,0,.2)!important}
+button.primary{background:linear-gradient(135deg,#d8ff79,#b8f02b)!important;border-color:#e3ff9e!important;color:#17200b!important;box-shadow:0 4px 0 #759b20,0 9px 18px rgba(174,230,49,.14),inset 0 1px rgba(255,255,255,.65)!important}
+button.primary:hover{box-shadow:0 6px 0 #759b20,0 13px 23px rgba(174,230,49,.2)!important}
+button.danger{background:linear-gradient(135deg,#ff6680,#d93459)!important;border-color:#ff8ba0!important;color:#fff!important;box-shadow:0 4px 0 #84233c,0 8px 16px rgba(220,52,89,.16)!important}
+button.green{background:linear-gradient(135deg,#31d7b0,#139a83)!important;border-color:#64e8ca!important;color:#06251e!important;box-shadow:0 4px 0 #086456,0 8px 16px rgba(19,154,131,.16)!important}
+button svg{width:16px!important;height:16px!important;flex:0 0 16px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.9!important;stroke-linecap:round!important;stroke-linejoin:round!important}
+.tab-btn svg{width:18px!important;height:18px!important;flex-basis:18px!important}
+#userList,#targetList{background:#0b1017!important;border:1px solid #303c49!important;border-radius:12px!important;color:#e9eef4!important}
+#userList .user-item,#targetList .target-item{border-bottom-color:#27313d!important}
+#userList .user-item:hover,#targetList .target-item:hover{background:rgba(198,255,69,.055)!important}
+#userList .user-check{accent-color:var(--x-lime)!important}
+table{background:#0d131b!important;border:1px solid #2a3542!important;border-radius:12px!important}
+th{background:#1b2430!important;color:#aab8c7!important;text-transform:uppercase!important;letter-spacing:1px!important;font-family:Orbitron,sans-serif!important;font-size:8px!important}
+td,th{border-bottom-color:#26313d!important}
+.status-balloon.online{background:#c6ff45!important;box-shadow:0 0 0 3px rgba(198,255,69,.12),0 0 12px rgba(198,255,69,.38)!important}
+.status-balloon.connecting{background:#ffc857!important}
+.status-balloon.error{background:#ff5574!important}
+.section-icon{filter:drop-shadow(0 0 8px rgba(198,255,69,.28))}
+.ui-switcher-head strong{font-family:Orbitron,sans-serif!important;letter-spacing:1px!important}
+select{accent-color:var(--x-lime)!important}
+.trash-btn{background:linear-gradient(135deg,#ff6680,#d93459)!important}
+@media(min-width:900px){.wrap{padding-top:24px!important}.panel{padding:20px!important}.tabs{max-width:700px;margin-left:auto!important;margin-right:auto!important}}
+@media(max-width:600px){.wrap{padding:9px!important}.top.hero{padding:14px!important;border-radius:16px!important}.brand-mark{width:54px!important;height:49px!important;border-radius:13px!important}.top h1{font-size:19px!important;letter-spacing:1.8px!important}.brand-sub{font-size:7px!important;letter-spacing:1.2px!important}.hero-chip{font-size:7px!important;padding:7px!important}.tabs{gap:5px!important;padding:5px!important;top:5px!important}.tab-btn{min-height:44px!important;gap:5px!important;font-size:9px!important;letter-spacing:.6px!important}.tab-btn svg{width:15px!important;height:15px!important;flex-basis:15px!important}.panel{padding:11px!important;border-radius:14px!important;margin-bottom:9px!important}button{min-height:41px!important;padding:8px 9px!important;font-size:9px!important;gap:5px!important}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+
+</style>
+<script id='migsock-icon-system'>
+
+document.addEventListener('DOMContentLoaded',()=>{
+ const icons={
+  tabSetting:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/><path d="m19.4 15 .1.1a1.8 1.8 0 0 1-2.5 2.5l-.1-.1a1.8 1.8 0 0 0-3 .9v.2a1.8 1.8 0 0 1-3.6 0v-.2a1.8 1.8 0 0 0-3-.9l-.1.1a1.8 1.8 0 0 1-2.5-2.5l.1-.1a1.8 1.8 0 0 0-.9-3h-.2a1.8 1.8 0 0 1 0-3.6h.2a1.8 1.8 0 0 0 .9-3l-.1-.1a1.8 1.8 0 0 1 2.5-2.5l.1.1a1.8 1.8 0 0 0 3-.9v-.2a1.8 1.8 0 0 1 3.6 0v.2a1.8 1.8 0 0 0 3 .9l.1-.1a1.8 1.8 0 0 1 2.5 2.5l-.1.1a1.8 1.8 0 0 0 .9 3h.2a1.8 1.8 0 0 1 0 3.6h-.2a1.8 1.8 0 0 0-.9 3Z"/></svg>',
+  tabDuel:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4 4 7l3 3M17 4l3 3-3 3M4 7h5a3 3 0 0 1 3 3v4a3 3 0 0 0 3 3h5M20 17l-3-3m3 3-3 3"/></svg>',
+  tabFlat:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5m0 14h16M8 15l3-4 3 2 5-7"/><path d="M16 6h3v3"/></svg>',
+  generateTroop:'<svg viewBox="0 0 24 24"><path d="M12 3v4m0 10v4M3 12h4m10 0h4M5.6 5.6l2.8 2.8m7.2 7.2 2.8 2.8m0-12.8-2.8 2.8m-7.2 7.2-2.8 2.8"/><circle cx="12" cy="12" r="4"/></svg>',
+  saveConfig:'<svg viewBox="0 0 24 24"><path d="M5 3h12l4 4v14H3V3h2Z"/><path d="M7 3v6h10V3M7 21v-8h10v8"/></svg>',
+  loadConfig:'<svg viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 15v6h16v-6"/></svg>',
+  loginAll:'<svg viewBox="0 0 24 24"><path d="M10 17l5-5-5-5M15 12H3M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/></svg>',
+  logoutAll:'<svg viewBox="0 0 24 24"><path d="M14 17l-5-5 5-5M9 12h12M12 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6"/></svg>',
+  loginBank:'<svg viewBox="0 0 24 24"><path d="M3 10h18M5 10V7l7-4 7 4v3M6 10v9m4-9v9m4-9v9m4-9v9M3 21h18"/></svg>',
+  flatButton:'<svg viewBox="0 0 24 24"><path d="M4 18V6m0 12h16M7 14l4-4 3 3 5-6"/></svg>',
+  evenOutTroopButton:'<svg viewBox="0 0 24 24"><path d="M4 7h16M4 17h16M8 4 4 7l4 3m8 4 4 3-4 3"/></svg>',
+  enterAll:'<svg viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6"/></svg>',
+  leaveAll:'<svg viewBox="0 0 24 24"><path d="M20 12H5m6-6-6 6 6 6"/></svg>',
+  listRoom:'<svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
+  clearTarget:'<svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6m4-6v6M6 7l1 14h10l1-14M9 7V4h6v3"/></svg>',
+  resetCountdown:'<svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 2.6-6.4L3 8"/><path d="M3 3v5h5m4-1v5l3 2"/></svg>',
+  headerLogout:'<svg viewBox="0 0 24 24"><path d="M10 17l5-5-5-5M15 12H3M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/></svg>'
+ };
+ Object.entries(icons).forEach(([id,svg])=>{
+  const el=document.getElementById(id);
+  if(!el || el.querySelector('svg')) return;
+  el.insertAdjacentHTML('afterbegin',svg);
+ });
+ document.querySelectorAll('.tab-btn').forEach((el,i)=>{
+  const ids=['tabSetting','tabDuel','tabFlat'];
+  if(el.id!==ids[i]) return;
+  el.setAttribute('aria-label',el.textContent.trim());
+ });
+ const labels={
+  setPass:'key','saveSet':'save','loadSet':'download','kickAll':'zap',
+  loginAll:'login','logoutAll':'logout','loginBank':'bank','logoutBank':'logout',
+  flatButton:'chart','evenOutTroopButton':'balance','enterAll':'enter','leaveAll':'exit','listRoom':'users'
+ };
+ const simple={
+  key:'<svg viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="m11 12 9-9m-4 4 3 3m-6-1 3 3"/></svg>',
+  save:'<svg viewBox="0 0 24 24"><path d="M5 3h12l4 4v14H3V3h2Z"/><path d="M7 3v6h10V3M7 21v-8h10v8"/></svg>',
+  download:'<svg viewBox="0 0 24 24"><path d="M12 3v13m-5-5 5 5 5-5M4 20h16"/></svg>',
+  zap:'<svg viewBox="0 0 24 24"><path d="m13 2-9 12h7l-1 8 10-13h-7l1-7Z"/></svg>',
+  login:'<svg viewBox="0 0 24 24"><path d="M10 17l5-5-5-5M15 12H3M12 3h6v18h-6"/></svg>',
+  logout:'<svg viewBox="0 0 24 24"><path d="M14 17l-5-5 5-5M9 12h12M12 3H6v18h6"/></svg>',
+  bank:'<svg viewBox="0 0 24 24"><path d="M3 10h18M5 10V7l7-4 7 4v3M6 10v9m4-9v9m4-9v9m4-9v9M3 21h18"/></svg>',
+  chart:'<svg viewBox="0 0 24 24"><path d="M4 19V5m0 14h16M8 15l3-4 3 2 5-7"/></svg>',
+  balance:'<svg viewBox="0 0 24 24"><path d="M4 7h16M4 17h16M8 4 4 7l4 3m8 4 4 3-4 3"/></svg>',
+  enter:'<svg viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6"/></svg>',
+  exit:'<svg viewBox="0 0 24 24"><path d="M20 12H5m6-6-6 6 6 6"/></svg>',
+  users:'<svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m7-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm8-3a4 4 0 0 1 0 7m5 6v-2a4 4 0 0 0-3-3.87"/></svg>'
+ };
+ Object.entries(labels).forEach(([id,key])=>{
+  const el=document.getElementById(id);
+  if(el && !el.querySelector('svg') && simple[key]) el.insertAdjacentHTML('afterbegin',simple[key]);
+ });
+})();
+
+</script>
+</head>
+<body>
+<div class="wrap">
+  <div class="top hero">
+    <div class="brand-wrap">
+      <div class="brand-mark"><img src="/static/logo.webp?v=3" alt="MIGSOCK TEAM logo" onerror="this.style.display='none';this.parentElement.classList.add('logo-failed')"></div>
+      <div>
+        <h1>MIGSOCK</h1>
+        <div class="brand-sub">MIGSOCK DUEL V2</div>
+      </div>
+    </div>
+    <button type="button" id="headerLogout" class="header-logout" title="Logout dari panel" aria-label="Logout dari panel">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10 17l5-5-5-5M15 12H3M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6" /></svg>
+    </button>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Navigasi">
+    <button id="tabSetting" class="tab-btn active" role="tab" aria-selected="true">SETTING</button>
+    <button id="tabDuel" class="tab-btn" role="tab" aria-selected="false">DUEL</button>
+    <button id="tabFlat" class="tab-btn" role="tab" aria-selected="false">FLAT</button>
+  </div>
+
+  <section id="panelSetting" class="tab-panel active" role="tabpanel">
+  <section class="ui-switcher panel" aria-label="Pengaturan tampilan">
+    <div class="ui-switcher-head"><div><strong>🎨 Ganti UI</strong></div>
+      <select id="uiTheme" aria-label="Pilih tampilan">
+        <option value="midnight">Midnight — Gelap</option>
+        <option value="light">Light — Terang</option>
+        <option value="ocean">Ocean — Biru</option>
+        <option value="emerald">Emerald — Hijau</option>
+        <option value="compact">Compact — Ringkas</option>
+         <option value="amoled">AMOLED — Hitam pekat</option>
+         <option value="purple">Purple — Ungu</option>
+         <option value="crimson">Crimson — Merah</option>
+         <option value="sunset">Sunset — Jingga</option>
+         <option value="rose">Rose — Merah muda</option>
+         <option value="slate">Slate — Abu-abu</option>
+      </select>
+    </div>
+  </section>
+
+  <div class="panel section-card login-troop-card">
+    <div class="setting-row troop-row">
+      <div class="field troop-name-field"><label for="nametroop">NameTroop Awal</label><input id="nametroop" placeholder="contoh: multy." autocomplete="off"></div>
+      <div class="field"><label for="start">Awal</label><input id="start" type="text" inputmode="numeric" pattern="\d*" value="00" maxlength="3"></div>
+      <div class="field"><label for="end">Akhir</label><input id="end" type="text" inputmode="numeric" pattern="\d*" value="99" maxlength="3"></div>
+      <div class="field troop-name-field"><label for="nametroopSuffix">NameTroop Akhir</label><input id="nametroopSuffix" placeholder="contoh: .multy" autocomplete="off"></div>
+      <div class="field"><label>&nbsp;</label><button id="generateTroop" class="primary">GENERATE</button></div>
+    </div>
+    <div class="setting-row pass-row">
+      <div class="field"><label for="passwordAll">PasswordAll</label><input id="passwordAll" type="password" placeholder="Password semua ID" autocomplete="new-password"></div>
+      <div class="field"><label>&nbsp;</label><button id="setPass">SET PASS</button></div>
+    </div>
+  </div>
+
+  <div class="panel section-card save-card">
+    <div class="setting-row save-row">
+      <div class="field"><label for="saveLoad">SaveLoad</label><input id="saveLoad" value="multi1" placeholder="Nama simpanan, contoh: multi1" autocomplete="off"><select id="saveLoadFormat" aria-label="Format file SaveLoad"><option value="json" selected>JSON</option><option value="txt">TXT</option></select><input id="loadFile" type="file" accept=".json,.txt,application/json,text/plain" class="native-file-picker" tabindex="-1" aria-hidden="true"></div>
+      <div class="field"><label>&nbsp;</label><button id="saveConfig" class="primary">SAVE</button></div>
+      <div class="field"><label>&nbsp;</label><button id="loadConfig" type="button">LOAD</button></div>
+    </div>
+  </div>
+
+  <div class="panel section-card troop-table-card">
+    <table>
+      <thead><tr><th>Username</th><th>Password / Saldo</th><th>Status</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <div class="actions login-actions">
+      <button class="primary" id="loginAll">LOGIN ALL</button>
+      <button class="danger" id="logoutAll">LOGOUT ALL</button>
+    </div>
+  </div>
+
+  </section>
+
+  <section id="panelFlat" class="tab-panel" role="tabpanel">
+  <div class="panel section-card">
+    <div class="setting-row" style="grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">
+      <div class="field"><label for="usernamebank">UsernameBank</label><input id="usernamebank" placeholder="Username bank" autocomplete="off"></div>
+      <div class="field"><label for="passwordbank">PasswordBank</label><input id="passwordbank" type="password" placeholder="Password bank" autocomplete="new-password"></div>
+      <div class="field"><label for="pinbank">PIN</label><input id="pinbank" type="password" inputmode="numeric" placeholder="PIN transfer" autocomplete="off"></div>
+      <div class="field"><label for="flatAmount">Jumlah Flat</label><input id="flatAmount" type="text" inputmode="decimal" placeholder="Contoh: 1000"></div>
+    </div>
+    <div class="setting-row" style="grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:end;margin-top:8px">
+      <div class="field"><label>Saldo Bank</label><span id="bankBalance" class="wallet-caption" style="justify-content:flex-start;min-height:44px;font-size:17px">—</span></div>
+      <div class="field"><label>&nbsp;</label><button id="loginBank" class="primary">LOGIN BANK</button></div>
+      <div class="field"><label>&nbsp;</label><button id="logoutBank" class="danger">LOGOUT BANK</button></div>
+    </div>
+    <div class="setting-row" style="grid-template-columns:1fr;gap:8px;margin-top:8px">
+      <div class="field"><label>&nbsp;</label><button id="flatButton" class="primary" style="min-height:48px">FLAT</button></div>
+    </div>
+    <div class="setting-row" style="grid-template-columns:minmax(0,1fr);gap:8px">
+      <div class="field"><label for="pinTroop">PIN Troop</label><input id="pinTroop" type="password" inputmode="numeric" placeholder="PIN transfer akun troop" autocomplete="off"></div>
+      <div class="field"><button id="evenOutTroopButton" class="green" style="min-height:48px">EVEN OUT BALANCE TROOP</button></div>
+    </div>
+    <div id="evenOutTroopStatus" class="status" style="margin-top:9px;color:#94a3b8"></div>
+
+    <div id="flatStatus" class="status" style="margin-top:9px;color:#94a3b8">Bank belum login.</div>
+    <div class="flat-progress"><div id="flatProgressFill" class="flat-progress-fill"></div></div>
+    <div id="flatSummary" class="flat-summary"><span>Progress <b>0/10</b></span><span>Total kirim <b>0</b></span><span>Berhasil <b>0</b></span><span>Gagal <b>0</b></span></div>
+    <div class="flat-report">
+      <table>
+        <thead><tr><th>WS</th><th>Username</th><th>Saldo Awal</th><th>Target</th><th>Selisih</th><th>Terkirim</th><th>Status</th><th>Saldo Bank</th></tr></thead>
+        <tbody id="flatReportBody"></tbody>
+      </table>
+    </div>
+  </div>
+  </section>
+
+  <section id="panelDuel" class="tab-panel" role="tabpanel">
+  <div class="panel section-card room-users-card">
+    <div class="lists-grid illustration-lists">
+      <div class="list-card user-list-card">
+        <div class="listtitle"><span>USER</span><span id="userCount" class="list-count user-count">0</span></div>
+        <div id="userList" class="user-box" aria-label="List username"></div>
+      </div>
+      <div class="list-card target-list-card">
+        <div class="listtitle"><span>TARGET</span><span class="target-head-actions"><span id="targetCount" class="list-count target-count">0</span><button id="clearTarget" class="danger trash-btn" title="Hapus semua username TARGET" aria-label="Hapus semua username TARGET"></button></span></div>
+        <div id="targetList" aria-label="List target room"></div>
+      </div>
+    </div>
+    <div class="roomrow room-controls-bottom">
+      <div class="field"><label for="room">Room</label><input id="room" autocomplete="off"></div>
+      <div class="field"><label>&nbsp;</label><button id="enterAll">ENTER ALL</button></div>
+      <div class="field"><label>&nbsp;</label><button id="leaveAll">LEAVE ALL</button></div>
+      <div class="field"><label>&nbsp;</label><button id="listRoom" class="green">LIST USER</button></div>
+    </div>
+    <div class="section-heading compact-heading"><div class="section-icon">⏱️</div><div class="field countdown-field"><input id="countdown" aria-label="Countdown" type="number" min="0" value="60000" readonly></div><button id="resetCountdown" class="reset-timer countdown-reset-inline" title="Reset Countdown ke 60000" aria-label="Reset Countdown ke 60000">↻</button></div>
+    <div class="room-timer-row">
+      <div class="field"><label for="timerKickall">Timer KickAll</label><input id="timerKickall" type="number" min="0" value="1500"></div>
+      <div class="field"><label for="kickLimitPerWs">Kick Limit/500ms/WS</label><input id="kickLimitPerWs" type="number" min="1" max="200" value="150"></div>
+    </div>
+    <div class="duel-settings-row">
+      <div class="field"><label for="delaySocket">Delay Socket (ms)</label><input id="delaySocket" type="number" min="0" value="25"></div>
+      <div class="field"><label for="delaySocketApplyEvery">Delay Socket Apply</label><select id="delaySocketApplyEvery">
+        <option value="1" selected>Every 1 Sock</option><option value="2">Every 2 Sock</option><option value="3">Every 3 Sock</option><option value="4">Every 4 Sock</option><option value="5">Every 5 Sock</option>
+      </select></div>
+      <div class="field"><label for="delayTarget">Delay Target (ms)</label><input id="delayTarget" type="number" min="0" value="20"></div>
+      <div class="field"><label for="delayTargetApplyEvery">Delay Target Apply</label><select id="delayTargetApplyEvery">
+        <option value="1" selected>Every 1 Target</option><option value="2">Every 2 Target</option><option value="3">Every 3 Target</option><option value="4">Every 4 Target</option><option value="5">Every 5 Target</option>
+      </select></div>
+      <div class="loop-target-pair">
+        <div class="field" id="loopKickField"><label for="loopKick">Loop</label><input id="loopKick" type="number" min="1" max="200" value="65"></div>
+        <div class="field" id="targetOrderField"><label for="targetOrder">Target Order</label><select id="targetOrder">
+          <option value="ascending" selected>Ascending</option>
+          <option value="descending">Descending</option>
+          <option value="random">Random</option>
+        </select></div>
+      </div>
+    </div>
+    <div class="kick-mode-layout kick-layout-option-b">
+      <div class="kick-mode-stack kick-settings-stack">
+        <div class="field kick-save-field"><label for="saveLoadSet">SaveLoad</label><div class="kick-save-input-row"><input id="saveLoadSet" value="kickset1" placeholder="Nama file set" autocomplete="off"><select id="saveLoadSetFormat" aria-label="Format file Save Set"><option value="json" selected>JSON</option><option value="txt">TXT</option></select><button id="saveSet" class="primary" type="button"><span class="kick-btn-icon" aria-hidden="true">▣</span><span>SAVE SET</span></button><button id="loadSet" type="button"><span class="kick-btn-icon kick-folder-icon" aria-hidden="true">📂</span><span>LOAD SET</span></button></div>
+        </div>
+      </div>
+      <input id="loadSetFile" type="file" accept=".json,.txt,application/json,text/plain" class="native-file-picker" tabindex="-1" aria-hidden="true">
+      <div class="kick-action-grid kick-mode-actions">
+        <button id="suicideToggle" type="button" onclick="toggleSuicide()" class="suicide-toggle suicide-off" title="Suicide OFF; 0/3 username" aria-pressed="false" aria-label="Suicide OFF; 0 of 3 usernames processed">☠️ OFF</button>
+        <button id="kickAll" class="danger kickall-side" type="button"><span class="kick-btn-icon" aria-hidden="true">🎯</span><span>KICK ALL</span></button>
+      </div>
+    </div>
+  </div>
+
+
+  </section>
+</div>
+
+<script>
+
+const tabSetting=document.getElementById("tabSetting"),tabDuel=document.getElementById("tabDuel"),tabFlat=document.getElementById("tabFlat"),panelSetting=document.getElementById("panelSetting"),panelDuel=document.getElementById("panelDuel"),panelFlat=document.getElementById("panelFlat");
+function switchTab(name){
+  const setting=name==="setting", duel=name==="duel", flat=name==="flat";
+  panelSetting.classList.toggle("active",setting); panelDuel.classList.toggle("active",duel); panelFlat.classList.toggle("active",flat);
+  tabSetting.classList.toggle("active",setting); tabDuel.classList.toggle("active",duel); tabFlat.classList.toggle("active",flat);
+  tabSetting.setAttribute("aria-selected",String(setting)); tabDuel.setAttribute("aria-selected",String(duel)); tabFlat.setAttribute("aria-selected",String(flat));
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+tabSetting.onclick=()=>switchTab("setting");
+tabDuel.onclick=()=>switchTab("duel");
+tabFlat.onclick=()=>switchTab("flat");
+const N=10;
+const clients=Array.from({length:N},()=>({ws:null,loggedIn:false,inRoom:false,pingTimer:null,intentionalClose:false,balance:null,generation:0}));
+const rows=document.getElementById("rows"),roomEl=document.getElementById("room"),userList=document.getElementById("userList"),targetList=document.getElementById("targetList"),userCount=document.getElementById("userCount"),targetCount=document.getElementById("targetCount"),saveLoadEl=document.getElementById("saveLoad");
+let confirmedKickedTargets=new Set();let kickRunning=false;let troopResetGeneration=0;let roomBatchGeneration=0;
+const SAVE_PREFIX="migsock_config_";
+let participantUsers=[];
+let participantBySocket=Array.from({length:N},()=>[]);
+// Central frontend state: socket events update state first, then the UI is
+// rendered only for the affected/settled portion. This keeps realtime event
+// handling cheap on mobile devices.
+const appState={
+  participants:new Map(),
+  targets:new Map(),
+  kicked:new Set(),
+  participantRenderTimer:null,
+  eventSeq:0,
+  lastEventAt:0
+};
+function stateKey(value){return String(value||"").trim().toLowerCase()}
+// Keep target state in one normalized Map; avoid repeated DOM scans in the 500ms config watcher.
+const targetRowsByKey=new Map();
+function getTargetNames(){return [...appState.targets.values()]}
+function clearTargetState(){appState.targets.clear();targetRowsByKey.clear()}
+function queueParticipantRender(){
+  if(appState.participantRenderTimer)return;
+  const flush=()=>{
+    appState.participantRenderTimer=null;
+    const merged=[...appState.participants.values()];
+    participantUsers=merged;
+    showUsers(merged,false);
+  };
+  if(typeof requestAnimationFrame==="function")appState.participantRenderTimer=requestAnimationFrame(flush);
+  else appState.participantRenderTimer=setTimeout(flush,25);
+}
+function rebuildParticipantState(){
+  appState.participants.clear();
+  for(const list of participantBySocket||[])for(const u of (Array.isArray(list)?list:[])){
+    const value=String(u||"").trim(),key=stateKey(value);
+    if(value&&key&&!confirmedKickedTargets.has(key))appState.participants.set(key,value);
+  }
+}
+function applyParticipantSnapshot(i,users){
+  participantBySocket[i]=Array.isArray(users)?users:[];
+  participantReceived.add(i);
+  rebuildParticipantState();
+  const merged=[...appState.participants.values()];
+  queueParticipantRender();
+  scheduleAutoTarget(merged,autoTargetCycle);
+  return merged;
+}
+function isVoteStartedKickEvent(msg){
+  const rawEvent=msg?.event??msg?.data?.event??msg;
+  const data=rawEvent?.data??rawEvent??{};
+  const eventType=String(rawEvent?.type??data?.event_type??"").toLowerCase();
+  const action=String(rawEvent?.action??data?.action??"").toLowerCase();
+  const status=String(rawEvent?.status_message??data?.status_message??"").trim();
+  const text=String(data?.text??rawEvent?.text??data?.message??rawEvent?.message??status).trim();
+  if(eventType==="room.kick.state"&&action==="vote_started"){
+    return /vote\s+to\s+kick\b/i.test(status||text)&&/\b\d+\s*(?:s|sec|secs|second|seconds)\s+remaining\.?$/i.test(status||text);
+  }
+  if(eventType!=="room.text"&&eventType!=="room.message.received")return false;
+  return /^vote\s+to\s+kick\s+.+?:\s*\d+\s+votes?[, ]+\d+\s+more\s+votes?\s+needed\.\s*\d+\s*(?:s|sec|secs|second|seconds)\s+remaining\.?$/i.test(text);
+}
+function getSuicideVoteKey(msg){
+  const rawEvent=msg?.event??msg?.data?.event??msg;
+  const data=rawEvent?.data??rawEvent??{};
+  const id=String(data?.event_id??data?.eventId??data?.id??rawEvent?.event_id??rawEvent?.eventId??"").trim();
+  if(id)return `id:${id}`;
+  return `vote:${String(data?.room??data?.room_name??rawEvent?.room??"").trim().toLowerCase()}|${String(data?.target_username??rawEvent?.target_username??"").trim().toLowerCase()}|${String(data?.username??rawEvent?.username??"").trim().toLowerCase()}|${String(data?.time??rawEvent?.time??"").trim()}`;
+}
+function getSuicideVoteTarget(msg){
+  const rawEvent=msg?.event??msg?.data?.event??msg;
+  const data=rawEvent?.data??rawEvent??{};
+  const direct=String(data?.target_username??rawEvent?.target_username??msg?.target_username??"").trim();
+  if(direct)return direct;
+  for(const value of [rawEvent?.status_message,data?.status_message,rawEvent?.text,data?.text,rawEvent?.message,data?.message]){
+    const text=String(value??"").trim();
+    const match=text.match(/^A\s+vote\s+to\s+kick\s+(.+?)\s*:\s*\d+\s+votes?(?:,|\s)/i);
+    if(match)return match[1].trim();
+    const simple=text.match(/^A\s+vote\s+to\s+kick\s+(.+?)(?:\s+\d+\s+votes?\b|\s+\d+\s*(?:s|sec|secs|second|seconds)\s+remaining\b)/i);
+    if(simple)return simple[1].trim().replace(/[.:,]+$/,"").trim();
+  }
+  return "";
+}
+let suicideEnabled=false;
+const suicideTriggeredKeys=new Set();
+const suicideAffectedUsernames=new Set();
+function resetSuicideFeature(reason="reset"){
+  suicideEnabled=false;
+  suicideTriggeredKeys.clear();
+  suicideAffectedUsernames.clear();
+  renderSuicideToggle();
+  log(0,`SUICIDE OFF: status dan batas username direset (${reason})`);
+}
+function renderSuicideToggle(){
+  const button=document.getElementById("suicideToggle");if(!button)return;
+  const processed=suicideAffectedUsernames.size;
+  button.textContent=suicideEnabled?`☠️ ON ${processed}/3`:`☠️ OFF`;
+  button.style.fontSize="9px";
+  while(button.scrollWidth>button.clientWidth && parseFloat(button.style.fontSize)>5.5){button.style.fontSize=(parseFloat(button.style.fontSize)-0.5)+"px";}
+  button.title=suicideEnabled?`Suicide ON; ${processed} dari 3 username unik diproses`:`Suicide OFF`;
+  button.setAttribute("aria-pressed",suicideEnabled?"true":"false");
+  button.setAttribute("aria-label",suicideEnabled?`Suicide ON; ${processed} dari 3 username unik diproses`:`Suicide OFF`);
+  button.classList.toggle("suicide-on",suicideEnabled);button.classList.toggle("suicide-off",!suicideEnabled);
+}
+function toggleSuicide(){
+  suicideEnabled=!suicideEnabled;
+  if(!suicideEnabled){suicideTriggeredKeys.clear();suicideAffectedUsernames.clear();}
+  renderSuicideToggle();
+  log(0,`SUICIDE ${suicideEnabled?"ON":"OFF"}`);
+}
+// Cache serialized room.kick payloads by room + target so repeated sends
+// reuse the exact same compact JSON string instead of serializing per socket.
+const duelKickPayloadCache=new Map();
+function getDuelKickPayload(room,target){
+  const key=JSON.stringify([room,target]);
+  let payload=duelKickPayloadCache.get(key);
+  if(payload!==undefined){
+    duelKickPayloadCache.delete(key);
+    duelKickPayloadCache.set(key,payload);
+    return payload;
+  }
+  payload=JSON.stringify({type:"room.kick",room,target_username:target});
+  duelKickPayloadCache.set(key,payload);
+  if(duelKickPayloadCache.size>100){
+    const oldestKey=duelKickPayloadCache.keys().next().value;
+    duelKickPayloadCache.delete(oldestKey);
+  }
+  return payload;
+}
+function sendSerializedRoomKick(i,payload){
+  const c=clients[i];
+  if(!c.ws||c.ws.readyState!==WebSocket.OPEN){log(i,"Socket belum OPEN");return false;}
+  try{
+    c.ws.send(payload);
+    log(i,"SEND room.kick");
+    return true;
+  }catch(error){
+    log(i,"SEND room.kick ERROR: "+(error?.message||String(error)));
+    return false;
+  }
+}
+
+function triggerSuicideFromVote(msg){
+  if(!suicideEnabled)return;
+  const target=getSuicideVoteTarget(msg);if(!target)return;
+  const wanted=target.trim().toLowerCase();let matchedUsername="";
+  for(let i=0;i<N;i++){
+    const username=cred(i).username;
+    if(clients[i].loggedIn&&clients[i].ws?.readyState===WebSocket.OPEN&&username&&username.toLowerCase()===wanted){matchedUsername=username;break;}
+  }
+  // Suicide only reacts when the vote target is one of this app's own WS1–WS10 usernames.
+  if(!matchedUsername)return;
+  const room=getRoom();if(!room)return;
+  const usernameKey=matchedUsername.trim().toLowerCase();
+  // Maksimal tiga username unik gabungan WS1–WS10 per aktivasi.
+  if(!suicideAffectedUsernames.has(usernameKey)&&suicideAffectedUsernames.size>=3){
+    log(0,`SUICIDE: target ${matchedUsername} diabaikan; batas 3 username unik sudah tercapai`);
+    return;
+  }
+  const key=getSuicideVoteKey(msg)||`${room}|${matchedUsername}`;
+  if(suicideTriggeredKeys.has(key))return;
+  suicideTriggeredKeys.add(key);
+  let sent=0;
+  const kickPayload=getDuelKickPayload(room,matchedUsername);
+  for(let i=0;i<N;i++){
+    if(clients[i].loggedIn&&clients[i].ws?.readyState===WebSocket.OPEN){
+      if(sendSerializedRoomKick(i,kickPayload))sent++;
+    }
+  }
+  log(0,`SUICIDE: vote target ${matchedUsername}; dikirim melalui ${sent} WS aktif`);
+  if(!sent)suicideTriggeredKeys.delete(key);
+  else {suicideAffectedUsernames.add(usernameKey);renderSuicideToggle();}
+}
+
+function dispatchSocketEvent(m,i){
+  if(!m||typeof m!=="object")return;
+  appState.eventSeq++;
+  appState.lastEventAt=performance.now();
+  updateBalanceFromMessage(i,m);
+  if(String(m.type||'').toLowerCase()==='wallet.transfer.result' && troopEvenOutRun.pending?.i===i){
+    settleTroopTransfer(i,true,'Transfer diterima API');
+    return;
+  }
+  if(String(m.type||'').toLowerCase()==='error' && troopEvenOutRun.pending?.i===i){
+    const msg=String(m?.data?.message||m?.data?.error||m?.message||'transfer ditolak');
+    settleTroopTransfer(i,false,msg);
+    return;
+  }
+  if(suicideEnabled&&isVoteStartedKickEvent(m))triggerSuicideFromVote(m);
+  if(m.type==="kick.target.confirmed"){removeConfirmedKickedTarget(m.target_username);return}
+  if(m.type==="kick.socket.started"){
+    // Backend is authoritative: this marks the socket group that is currently
+    // processing the complete Target list.
+    return;
+  }
+  if(m.type==="kick.socket.completed"){
+    return;
+  }
+  if(m.type==="kick.countdown.started" || m.type==="kick.countdown.update"){
+    // Backend remaining time is authoritative; local monotonic time is used
+    // only to render smoothly between server synchronization messages.
+    syncCountdownFromBackend(m);
+    return;
+  }
+  if(m.type==="kick.countdown.reset" || m.type==="kick.countdown.finished" || m.type==="kick.countdown.cancelled" || m.type==="kick.countdown.fired" || m.type==="kick.countdown.error"){
+    if(m.type==="kick.countdown.reset" || m.type==="kick.countdown.cancelled" || m.type==="kick.countdown.error") stopCountdown(true);
+    else stopCountdown(false);
+    if(m.type==="kick.countdown.error") log(0,"Backend countdown error: "+(m.error||"unknown"));
+    return;
+  }
+  if(m.type==="kick.job.started"){
+    kickRunning=true;
+    setKickButtonState(true);
+    return;
+  }
+  if(m.type==="kick.job.finished"){
+    kickRunning=false;
+    setKickButtonState(false);
+    return;
+  }
+  if(isConfirmedKickEvent(m)){removeConfirmedKickedTarget(kickEventData(m).target);return}
+  if(m.type==="proxy.error"){status(i,"PROXY ERROR","error");log(i,"PROXY ERROR: "+(m.data?.message||"unknown"));return}
+  if(isKickEvent(m)){startCountdownFromKick(m)}
+  if(handleParticipants(m,i))return;
+  if(m.type==="auth.required"){log(i,"RECV auth.required");send(i,{type:"developer.login",username:cred(i).username,password:cred(i).password},true)}
+  else if(m.type==="session.ready"){clients[i].loggedIn=true;clients[i].inRoom=false;status(i,"ONLINE","online");startPing(i);send(i,{type:"wallet.balance"},true);log(i,"LOGIN OK")}
+  else if(m.type==="room.join.result"){const ok=m.ok===true||m.data?.ok===true||m.data?.joined===true||m.success===true;if(ok){clients[i].inRoom=true;log(i,"ENTER ROOM OK");const r=roomEl.value.trim();if(r)send(i,{type:"room.participants",room:r},true)}else log(i,"ENTER ROOM RESULT "+JSON.stringify(m))}
+  else if(m.type==="room.leave.result"){const ok=m.ok===true||m.data?.ok===true||m.data?.left===true||m.success===true;if(ok){clients[i].inRoom=false;log(i,"LEAVE ROOM OK")}else log(i,"LEAVE ROOM RESULT "+JSON.stringify(m))}
+  else if(m.type==="session.replaced"){clients[i].loggedIn=false;clients[i].inRoom=false;stopPing(i);status(i,"REPLACED","error")}
+  else if(m.type==="error"){clients[i].loggedIn=false;clients[i].inRoom=false;stopPing(i);status(i,"ERROR","error");log(i,"API ERROR "+JSON.stringify(m))}
+}
+
+let autoTargetLocked=false;
+let autoTargetTimer=null;
+let autoTargetCycle=0;
+let participantExpected=new Set();
+let participantReceived=new Set();
+const COUNTDOWN_DEFAULT=60000;
+let frontendCountdownDeadline=0;
+let frontendCountdownInterval=null;
+let lastFrontendCountdownKey="";
+let lastFrontendCountdownStart=0;
+let backendCountdownActive=false;
+let backendClockOffsetMax=null;
+function countdownEl(){return document.getElementById("countdown")}
+function setCountdownValue(v){countdownEl().value=String(Math.max(0,Math.round(v)))}
+function renderFrontendCountdown(){
+  if(!frontendCountdownDeadline){setCountdownValue(COUNTDOWN_DEFAULT);return}
+  const remaining=Math.max(0,frontendCountdownDeadline-performance.now());
+  setCountdownValue(remaining);
+  if(remaining<=0){
+    frontendCountdownDeadline=0;
+    if(frontendCountdownInterval){clearInterval(frontendCountdownInterval);frontendCountdownInterval=null}
+  }
+}
+function startFrontendCountdown(durationMs,eventKey){
+  const now=performance.now();
+  if(eventKey && eventKey===lastFrontendCountdownKey && now-lastFrontendCountdownStart<5000)return;
+  lastFrontendCountdownKey=eventKey||"";
+  lastFrontendCountdownStart=now;
+  backendCountdownActive=false;
+  const parsed=Number(durationMs);
+  const duration=Math.max(0,Math.min(COUNTDOWN_DEFAULT,Number.isFinite(parsed)?parsed:COUNTDOWN_DEFAULT));
+  frontendCountdownDeadline=now+duration;
+  if(frontendCountdownInterval)clearInterval(frontendCountdownInterval);
+  renderFrontendCountdown();
+  frontendCountdownInterval=setInterval(renderFrontendCountdown,50);
+}
+function syncCountdownFromBackend(message){
+  const remaining=Number(message?.remainingMs);
+  if(!Number.isFinite(remaining)||remaining<0)return;
+  let transitCorrection=0;
+  const serverNow=Number(message?.serverNowMs);
+  if(Number.isFinite(serverNow)&&serverNow>0){
+    const observedOffset=serverNow-Date.now();
+    if(backendClockOffsetMax===null||observedOffset>backendClockOffsetMax)backendClockOffsetMax=observedOffset;
+    // Correct excess delivery delay relative to the fastest update observed.
+    // The backend deadline remains authoritative for the actual scheduled action.
+    transitCorrection=Math.max(0,backendClockOffsetMax-observedOffset);
+  }
+  const correctedRemaining=Math.max(0,remaining-transitCorrection);
+  const candidateDeadline=performance.now()+correctedRemaining;
+  if(!backendCountdownActive){
+    backendCountdownActive=true;
+    frontendCountdownDeadline=candidateDeadline;
+    if(frontendCountdownInterval)clearInterval(frontendCountdownInterval);
+    frontendCountdownInterval=setInterval(renderFrontendCountdown,50);
+  }else{
+    // Re-align the display to the backend's absolute countdown without
+    // restarting the timer or accumulating interval/scheduler drift.
+    frontendCountdownDeadline=candidateDeadline;
+  }
+  renderFrontendCountdown();
+}
+function kickEventData(m){const d=m?.data&&typeof m.data==="object"?m.data:m||{};return {
+  type:String(m?.type??d?.type??d?.event_type??"").toLowerCase(),
+  action:String(m?.action??d?.action??"").toLowerCase(),
+  status:String(m?.status_message??m?.message??d?.status_message??d?.message??"").toLowerCase(),
+  room:String(m?.room??d?.room??"").trim(),
+  target:String(m?.target_username??d?.target_username??d?.username??d?.target??"").trim(),
+  time:String(m?.time??d?.time??d?.timestamp??"").trim()
+}}
+function isConfirmedKickEvent(m){
+  const d=kickEventData(m);
+  if(!d.target)return false;
+  const exact=new Set([
+    "room.participant.kicked","room.member.kicked","room.user.kicked",
+    "participant.kicked","member.kicked","user.kicked"
+  ]);
+  if(exact.has(d.type))return true;
+  if(d.type.includes("vote")||d.type==="room.kick.result"||d.type==="room.command.result")return false;
+  return ["has been kicked","was kicked","have been kicked","kicked from the room"]
+    .some(x=>d.status.includes(x));
+}
+
+function isKickEvent(m){
+  const d=kickEventData(m);
+  if(!d.type)return false;
+  // Countdown hanya dipicu oleh event room.kick.state dengan pesan "A vote to kick".
+  // Event kick lain, room.kick.result, room.kicked, atau action vote_started tanpa
+  // pesan "A vote to kick" tidak boleh menyalakan countdown.
+  return d.type==="room.kick.state" && d.status.includes("a vote to kick");
+}
+function kickEventKey(m){const d=kickEventData(m);return [d.type,d.action,d.room,d.target,d.time,d.status].join("|")}
+function stopCountdown(reset=true){
+  frontendCountdownDeadline=0;
+  backendCountdownActive=false;
+  backendClockOffsetMax=null;
+  if(frontendCountdownInterval){clearInterval(frontendCountdownInterval);frontendCountdownInterval=null}
+  setCountdownValue(reset?COUNTDOWN_DEFAULT:0);
+}
+function resetCountdownTimer(){
+  stopCountdown(true);
+  log(0,'Countdown di-reset ke 60000 dan berhenti');
+}
+function countdownRemainingFromEvent(m){
+  const d=kickEventData(m);
+  const candidates=[m?.status_message,m?.data?.status_message,m?.message,m?.data?.message,d.status];
+  for(const value of candidates){
+    const match=String(value??'').match(/\b(\d+)\s*(?:s|sec|secs|second|seconds)\s+remaining\.?/i);
+    if(match)return Math.max(0,Math.min(COUNTDOWN_DEFAULT,Number(match[1])*1000));
+  }
+  const n=Number(m?.remaining_ms??m?.data?.remaining_ms);
+  if(Number.isFinite(n)&&n>=0)return Math.min(COUNTDOWN_DEFAULT,n);
+  return COUNTDOWN_DEFAULT;
+}
+function startCountdownFromKick(m){
+  const d=kickEventData(m);
+  const eventKey=kickEventKey(m);
+  const duration=countdownRemainingFromEvent(m);
+  // Frontend display uses a monotonic local deadline, so it keeps counting
+  // smoothly even if the backend/WebSocket connection drops or updates arrive late.
+  startFrontendCountdown(duration,eventKey);
+  log(0,'Event kick diterima; countdown frontend berjalan lokal');
+}
+let autoConfigSyncBusy=false;
+let lastBackendAutoConfigPayload="";
+let lastBackendAutoConfigAt=0;
+async function syncBackendAutoConfig(force=false){
+  if(autoConfigSyncBusy)return;
+  autoConfigSyncBusy=true;
+  try{
+    const targets=getTargetNames();
+    const cfg={room:getRoom(),targets,countdownMs:COUNTDOWN_DEFAULT,timerKickall:Math.max(0,Number(document.getElementById('timerKickall')?.value)||0),loop:Math.min(200,Math.max(1,Number(document.getElementById('loopKick')?.value)||1)),socketApplyEvery:Math.min(10,Math.max(1,Number(document.getElementById('delaySocketApplyEvery')?.value)||1)),targetApplyEvery:Math.min(10,Math.max(1,Number(document.getElementById('delayTargetApplyEvery')?.value)||1)),delaySocket:Math.max(0,Number(document.getElementById('delaySocket')?.value)||0),delayTarget:Math.max(0,Number(document.getElementById('delayTarget')?.value)||0),targetOrder:document.getElementById('targetOrder')?.value||'ascending',kickLimitPerWs:Math.min(200,Math.max(1,Number(document.getElementById('kickLimitPerWs')?.value)||150))};
+    const payload=JSON.stringify(cfg);
+    const now=Date.now();
+    // Skip unchanged config posts during the 500ms watcher. A periodic refresh
+    // recovers server-side in-memory config after restarts or transient loss.
+    if(!force&&payload===lastBackendAutoConfigPayload&&now-lastBackendAutoConfigAt<5000)return;
+    const response=await fetch('/api/kick-auto-config',{method:'POST',headers:{'Content-Type':'application/json'},body:payload,cache:'no-store'});
+    if(response.ok){
+      lastBackendAutoConfigPayload=payload;
+      lastBackendAutoConfigAt=Date.now();
+    }
+  }catch(_){/* config sync is retried on the next cycle */}
+  finally{autoConfigSyncBusy=false;}
+}
+function resetCountdownTimer(){
+  setCountdownValue(COUNTDOWN_DEFAULT);
+  fetch('/api/kick-auto-reset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({room:getRoom()}),cache:'no-store'}).catch(()=>{});
+  log(0,'Reset countdown diminta ke backend');
+}
+
+function log(i,m){/* UI log removed */}
+function status(i,t,c){const e=document.getElementById(`status-${i}`);e.title=t;e.setAttribute("aria-label",t);e.className="status-balloon "+c}
+function formatNominal(value){
+  if(value===null||value===undefined||value==="")return "—";
+  const n=Number(value);
+  if(!Number.isFinite(n))return "—";
+  return String(n).replace(/\.0+$/,'').replace(/(\.\d*?)0+$/,'$1');
+}
+function setBalance(i,value){const e=document.getElementById(`balance-${i}`);if(!e)return;e.textContent=formatNominal(value)}
+function parseBalanceValue(v, unit='cr'){
+  if(v===null||v===undefined)return null;
+  if(typeof v==='number'&&Number.isFinite(v)) return unit==='milli' ? v/1000 : v;
+  if(typeof v!=='string')return null;
+  const s=v.trim(); if(!s)return null;
+  const m=s.match(/-?\d+(?:[.,]\d+)?/); if(!m)return null;
+  const n=Number(m[0].replace(',','.')); if(!Number.isFinite(n))return null;
+  return unit==='milli' ? n/1000 : n;
+}
+function extractBalance(m){
+  // API contract: balance_cr is already CR; balance_milli_cr is milli-CR.
+  // Never infer the unit from the presence/absence of "CR" in a label.
+  const seen=new Set();
+  const walk=(v,key='',depth=0)=>{
+    if(depth>10||v===null||v===undefined)return null;
+    const k=String(key||'').toLowerCase();
+    if(k==='balance_cr') return parseBalanceValue(v,'cr');
+    if(k==='balance_milli_cr') return parseBalanceValue(v,'milli');
+    if(k==='label') return parseBalanceValue(v,'cr');
+    if(typeof v!=='object')return null;
+    if(seen.has(v))return null; seen.add(v);
+    const entries=Array.isArray(v)?v.map((x,i)=>[String(i),x]):Object.entries(v);
+    // Prefer the API's canonical balance_cr, then milli fallback.
+    for(const wanted of ['balance_cr','balance_milli_cr']){
+      for(const [ek,ev] of entries){
+        if(String(ek).toLowerCase()===wanted){
+          const out=walk(ev,ek,depth+1); if(out!==null)return out;
+        }
+      }
+    }
+    // Then inspect nested wallet objects (session.ready / wallet.* responses).
+    for(const [ek,ev] of entries){
+      const lk=String(ek).toLowerCase();
+      if(lk==='wallet'||lk==='developer'||lk==='data'||lk==='result'||lk==='recipient_wallet'){
+        const out=walk(ev,ek,depth+1); if(out!==null)return out;
+      }
+    }
+    return null;
+  };
+  return walk(m);
+}
+let flatRefreshState=null;
+let flatPreRefreshState=null;
+function updateBalanceFromMessage(i,m){
+  const type=String(m?.type??'').toLowerCase();
+  if(type==='session.ready'||type==='wallet.balance.result'||type==='wallet.transfer.result'||type.includes('balance')||type.includes('credit')){
+    const b=extractBalance(m);
+    if(b!==null){
+      setBalance(i,b);
+      if(type==='wallet.balance.result' && flatRefreshState?.pendingWs?.has(i)){
+        flatRefreshState.pendingWs.delete(i);
+        maybeFinishFlatRefresh();
+      }
+      if(type==='wallet.balance.result' && flatPreRefreshState?.pendingWs?.has(i)){
+        flatPreRefreshState.pendingWs.delete(i);
+        if(flatPreRefreshState.pendingWs.size===0){
+          const resolve=flatPreRefreshState.resolve;
+          flatPreRefreshState=null;
+          if(resolve)resolve(true);
+        }
+      }
+    }
+  }
+}
+
+function render(){for(let i=0;i<N;i++){insertRow(i)}}
+function insertRow(i){rows.insertAdjacentHTML("beforeend",`<tr><td><input id="user-${i}" placeholder="Username ${i+1}" autocomplete="off"></td><td class="password-cell"><div class="password-wrap"><input id="pass-${i}" type="password" placeholder="Password ${i+1}" autocomplete="new-password"><span id="balance-${i}" class="wallet-caption" title="Saldo">—</span></div></td><td style="text-align:center"><span id="status-${i}" class="status-balloon offline" title="OFFLINE" aria-label="OFFLINE"></span></td></tr>`) }
+function cred(i){return{username:document.getElementById(`user-${i}`).value.trim(),password:document.getElementById(`pass-${i}`).value}}
+function getRoom(){const room=roomEl.value.trim();if(!room){return null}return room}
+function getRange(){
+  const av=String(document.getElementById("start").value||"").trim();
+  const bv=String(document.getElementById("end").value||"").trim();
+  if(!/^\d+$/.test(av)||!/^\d+$/.test(bv)){ return null; }
+  const a=Number(av), b=Number(bv);
+  if(!Number.isSafeInteger(a)||!Number.isSafeInteger(b)||a<0||b<a){ return null; }
+  const values=[];
+  for(let i=0;i<N;i++){
+    const v=(i===0)?a:(i===N-1)?b:Math.round(a+(b-a)*i/(N-1));
+    values.push(v);
+  }
+  return {mode:"any-range",values,startWidth:av.length,endWidth:bv.length};
+}
+function refreshUserList(){}
+function updateTargetCount(){targetCount.textContent=String(appState.targets.size)}
+function targetHas(username){
+  const key=String(username||"").trim().toLowerCase();
+  return !!key && appState.targets.has(key);
+}
+function removeConfirmedKickedTarget(username){
+  username=String(username||"").trim();
+  if(!username)return false;
+  const key=stateKey(username);
+  if(!key)return false;
+  confirmedKickedTargets.add(key);
+  appState.kicked.add(key);
+  appState.participants.delete(key);
+  appState.targets.delete(key);
+
+  // Remove the indexed target row directly instead of scanning the full list.
+  const targetRow=targetRowsByKey.get(key);
+  if(targetRow){targetRow.remove();targetRowsByKey.delete(key);}
+  [...userList.querySelectorAll(".user-item")].forEach(row=>{
+    const value=stateKey(row.dataset.username||row.querySelector("span")?.textContent||row.textContent);
+    if(value===key)row.remove();
+  });
+
+  if(Array.isArray(participantBySocket)){
+    for(let i=0;i<participantBySocket.length;i++){
+      const list=Array.isArray(participantBySocket[i])?participantBySocket[i]:[];
+      participantBySocket[i]=list.filter(u=>stateKey(u)!==key);
+    }
+  }
+  participantUsers=[...appState.participants.values()];
+  userCount.textContent=String(userList.querySelectorAll(".user-item").length);
+  if(!userList.querySelector(".user-item") && participantUsers.length===0){
+    userList.innerHTML="";
+    const e=document.createElement("div");e.className="empty";e.textContent="Tidak ada participant";userList.appendChild(e);
+  }
+  updateTargetCount();
+  log(0,`KICKED: ${username} dihapus dari USER dan TARGET; state tersinkron`);
+  return true;
+}
+
+function addTarget(username){
+  const value=String(username||"").trim();
+  if(!value)return false;
+  const key=value.toLowerCase();
+  const ownWs=new Set();
+  for(let i=0;i<N;i++){const u=cred(i).username;if(u)ownWs.add(u.trim().toLowerCase());}
+  if(ownWs.has(key)||confirmedKickedTargets.has(key)||targetHas(value)||appState.targets.size>=10)return false;
+  const e=document.createElement("div");
+  e.className="target-item";
+  e.dataset.username=value;
+  e.textContent=value;
+  targetList.appendChild(e);
+  appState.targets.set(key,value);
+  targetRowsByKey.set(key,e);
+  updateTargetCount();
+  return true;
+}
+function moveUserToTarget(username,row,checkbox){
+  const added=addTarget(username);
+  if(added){
+    if(row&&row.parentNode)row.parentNode.removeChild(row);
+    userCount.textContent=userList.querySelectorAll(".user-item").length;
+  }else if(checkbox){
+    checkbox.checked=false;
+  }
+}
+async function requestAutoTargets(users,cycle){
+  if(autoTargetLocked||cycle!==autoTargetCycle)return;
+  const ownWebSockets=[];
+  for(let i=0;i<N;i++){
+    const username=cred(i).username;
+    if(username)ownWebSockets.push(username);
+  }
+  const payload={
+    room:getRoom(),
+    ownWebSockets,
+    kicked:[...confirmedKickedTargets],
+    existingTargets:getTargetNames()
+  };
+  try{
+    const response=await fetch('/api/target-generate',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload),cache:'no-store'
+    });
+    const result=await response.json().catch(()=>({}));
+    if(!response.ok||result.ok!==true)throw new Error(result.error||`HTTP ${response.status}`);
+    if(cycle!==autoTargetCycle||autoTargetLocked)return;
+    const added=[];
+    for(const username of (Array.isArray(result.targets)?result.targets:[])){
+      if(addTarget(username))added.push(username);
+    }
+    if(added.length){
+      autoTargetLocked=true;
+      log(0,`AUTO TARGET (BACKEND): ${added.join(', ')} | participant=${result.participants??0} | snapshot=${result.snapshots??0}`);
+      showUsers(users,false);
+    }
+  }catch(error){
+    log(0,'AUTO TARGET BACKEND ERROR: '+(error?.message||'gagal memproses target'));
+  }
+}
+
+function clearTargets(){
+  if(autoTargetTimer){clearTimeout(autoTargetTimer);autoTargetTimer=null}
+  autoTargetCycle++;
+  const restored=[...new Set(participantUsers)].filter(u=>!confirmedKickedTargets.has(String(u).toLowerCase()));
+  targetList.innerHTML="";
+  clearTargetState();
+  autoTargetLocked=false;
+  updateTargetCount();
+  if(restored.length) showUsers(restored,false); else { userList.innerHTML=""; userCount.textContent="0"; }
+  log(0,`TARGET dihapus: ${restored.length} username dikembalikan ke USER`);
+}
+function generateTroop(){
+  const prefix=document.getElementById("nametroop").value.trim();
+  const ending=document.getElementById("nametroopSuffix").value.trim();
+  if(!prefix){return}
+  const range=getRange();
+  if(!range)return;
+  for(let i=0;i<N;i++){
+    document.getElementById(`user-${i}`).value="";
+    document.getElementById(`pass-${i}`).value="";
+  }
+
+  if(range.mode==="any-range"){
+    range.values.forEach((n,slot)=>{
+      const width=Math.max(range.startWidth,1);
+      const suffix=String(n).padStart(width,"0");
+      const u=prefix+suffix+ending;
+      document.getElementById(`user-${slot}`).value=u;
+      log(slot,`Username ${u}`);
+    });
+  }
+  refreshUserList();
+}
+function setPass(){
+  const pw=document.getElementById("passwordAll").value;
+  if(!pw){return}
+  for(let i=0;i<N;i++)document.getElementById(`pass-${i}`).value=pw;
+  log(0,`Password diisi untuk ${N} ID`);
+}
+function send(i,o,hideLog=false){const c=clients[i];if(!c.ws||c.ws.readyState!==WebSocket.OPEN){log(i,"Socket belum OPEN");return false}c.ws.send(JSON.stringify(o));if(hideLog)log(i,`SEND ${o.type}`);else log(i,"SEND "+JSON.stringify(o));return true}
+function stopPing(i){if(clients[i].pingTimer){clearInterval(clients[i].pingTimer);clients[i].pingTimer=null}}
+function startPing(i){stopPing(i);clients[i].pingTimer=setInterval(()=>{if(clients[i].loggedIn)send(i,{type:"ping"},true)},45000)}
+function logoutOne(i){
+  const c=clients[i];
+  c.generation++;
+  c.intentionalClose=true;
+  stopPing(i);
+  c.loggedIn=false;c.inRoom=false;c.balance=null;
+  setBalance(i,"—");
+  const old=c.ws;c.ws=null;
+  if(old){try{old.close(1000,"logout")}catch(e){}}
+  status(i,"OFFLINE","offline");
+  log(i,"Logout + session WS dibersihkan");
+}
+function clearTroopClientState(){
+  if(autoTargetTimer){clearTimeout(autoTargetTimer);autoTargetTimer=null}
+  autoTargetCycle++;
+  autoTargetLocked=false;
+  participantUsers=[];
+  appState.eventSeq=0;
+  appState.lastEventAt=0;
+  participantExpected=new Set();
+  participantReceived=new Set();
+  participantBySocket=Array.from({length:N},()=>[]);
+  appState.participants.clear();
+  clearTargetState();
+  appState.kicked.clear();
+  if(appState.participantRenderTimer){
+    if(typeof cancelAnimationFrame==="function")cancelAnimationFrame(appState.participantRenderTimer);
+    else clearTimeout(appState.participantRenderTimer);
+    appState.participantRenderTimer=null;
+  }
+  confirmedKickedTargets.clear();
+  targetList.innerHTML="";
+  userList.innerHTML="";
+  userCount.textContent="0";
+  updateTargetCount();
+}
+function loginAll(){for(let i=0;i<N;i++){const x=cred(i);if(x.username&&x.password)loginOne(i)}}
+let logoutAllPromise=null;
+async function logoutAll(){
+  if(logoutAllPromise)return logoutAllPromise;
+  logoutAllPromise=(async()=>{
+    // Invalidate pending frontend work first so late responses/events cannot
+    // restore a previous duel's state after logout has started.
+    troopResetGeneration++;
+    resetSuicideFeature("LOGOUT ALL");
+    stopCountdown(true);
+    kickRunning=false;
+    setKickButtonState(false);
+    clearTroopClientState();
+    roomBatchGeneration++;
+    roomBatchAction=null;
+    // Close local WS immediately so late upstream events cannot repopulate state
+    // while backend workers and upstream sessions are being reset.
+    for(let i=0;i<N;i++)logoutOne(i);
+
+    // Stop all server-side scheduled/running jobs, then reset upstream sessions.
+    // Wait for both requests to settle; do not continue after an arbitrary timeout.
+    let stopError=null, resetError=null;
+    try{
+      const stopResponse=await fetch("/api/kick-stop",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}",cache:"no-store"});
+      const stopResult=await stopResponse.json().catch(()=>({}));
+      if(!stopResponse.ok||stopResult.ok===false)throw new Error(stopResult.error||`HTTP ${stopResponse.status}`);
+    }catch(e){stopError=e}
+    try{
+      const resetResponse=await fetch("/api/troop/reset",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}",cache:"no-store"});
+      const resetResult=await resetResponse.json().catch(()=>({}));
+      if(!resetResponse.ok||resetResult.ok===false)throw new Error(resetResult.error||`HTTP ${resetResponse.status}`);
+    }catch(e){resetError=e}
+    // A clean local state is guaranteed; if the server could not be reached,
+    // report that explicitly rather than silently claiming a complete reset.
+    if(stopError||resetError){
+      log(0,`LOGOUT ALL: state lokal dibersihkan, tetapi reset backend gagal${stopError?` (stop: ${stopError.message})`:""}${resetError?` (reset: ${resetError.message})`:""}. Periksa koneksi lalu tekan LOGOUT ALL lagi.`);
+    }else{
+      log(0,"LOGOUT ALL selesai: timer, state duel, job backend, sesi upstream, dan seluruh WS dibersihkan; aplikasi tetap terbuka");
+    }
+  })();
+  try{await logoutAllPromise}finally{logoutAllPromise=null}
+}
+// ENTER ALL / LEAVE ALL mengirim ke setiap WS satu per satu dengan jeda 80 ms.
+let roomBatchAction=null;
+const ROOM_SOCKET_DELAY_MS=150;
+const roomBatchSleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+async function runRoomBatchAction(action,room){
+  if(roomBatchAction){log(0,`ROOM ${roomBatchAction.toUpperCase()} masih berjalan; abaikan ${action.toUpperCase()}`);return}
+  roomBatchAction=action;
+  const batchGeneration=roomBatchGeneration;
+  const messageType=action==="join"?"room.join":"room.leave";
+  let sentCount=0;
+  try{
+    for(let i=0;i<N;i++){
+      if(batchGeneration!==roomBatchGeneration)break;
+      if(!clients[i].loggedIn)continue;
+      if(sentCount>0)await roomBatchSleep(ROOM_SOCKET_DELAY_MS);
+      if(batchGeneration!==roomBatchGeneration)break;
+      send(i,{type:messageType,room},true);
+      sentCount++;
+    }
+    if(batchGeneration===roomBatchGeneration)log(0,`${action==="join"?"ENTER":"LEAVE"} ALL selesai dikirim (${sentCount} WS, jeda antar WS ${ROOM_SOCKET_DELAY_MS} ms)`);
+  }finally{if(batchGeneration===roomBatchGeneration)roomBatchAction=null}
+}
+function enterAll(){const room=getRoom();if(!room)return;void runRoomBatchAction("join",room)}
+function leaveAll(){
+  // LEAVE ALL resets SUICIDE even if no room is currently selected.
+  resetSuicideFeature("LEAVE ALL");
+  // Leave All always stops every active kick worker first.
+  stopKickAll();const room=getRoom();if(!room)return;void runRoomBatchAction("leave",room)
+}
+function extractUsers(m){
+  let arr=m?.participants??m?.data?.participants??m?.users??m?.data?.users??m?.data?.members??m?.data?.list??m?.data?.results??m?.result?.participants??m?.result?.users??[];
+  if(!Array.isArray(arr)&&arr&&typeof arr==='object')arr=Object.values(arr);
+  if(!Array.isArray(arr))arr=[];
+  return arr.map(x=>typeof x==='string'?x:(x?.username??x?.user??x?.name??x?.nickname??x?.id??"" )).filter(Boolean);
+}
+function showUsers(users,auto=true){
+  const uniq=[...new Map((users||[])
+    .map(x=>String(x||'').trim())
+    .filter(Boolean)
+    .map(u=>[u.toLowerCase(),u])).values()];
+  participantUsers=uniq;
+  const fragment=document.createDocumentFragment();
+
+  // Keep the existing Auto Target cycle and filtering behavior unchanged.
+  const visible=uniq.filter(u=>!targetHas(u)&&!confirmedKickedTargets.has(u.toLowerCase()));
+  if(!visible.length){
+    const e=document.createElement("div");e.className="empty";
+    e.textContent=uniq.length?"Semua participant sudah dipindahkan ke TARGET":"Tidak ada participant";
+    fragment.appendChild(e);
+  }else{
+    for(const u of visible){
+      const e=document.createElement("div");e.className="user-item";
+      e.dataset.username=u;
+      const cb=document.createElement("input");cb.type="checkbox";cb.className="user-check";cb.title="Pindahkan ke TARGET";
+      const label=document.createElement("span");label.textContent=u;
+      cb.onchange=()=>{if(cb.checked)moveUserToTarget(u,e,cb)};
+      e.append(cb,label);fragment.appendChild(e);
+    }
+  }
+  userList.replaceChildren(fragment);
+  userCount.textContent=visible.length;
+  updateTargetCount();
+}
+function scheduleAutoTarget(merged,cycle){
+  if(autoTargetLocked||!merged||!merged.length)return;
+  if(autoTargetTimer)clearTimeout(autoTargetTimer);
+
+  // Prefer a complete participant snapshot. A quiet timer is retained as a
+  // fallback so a disconnected/slow WS cannot block auto-target forever.
+  const expectedCount=participantExpected.size;
+  const receivedCount=participantReceived.size;
+  const allReceived=expectedCount>0 && receivedCount>=expectedCount;
+  const waitMs=allReceived?80:1400;
+
+  autoTargetTimer=setTimeout(()=>{
+    if(cycle!==autoTargetCycle||autoTargetLocked)return;
+    const current=[...new Map(participantBySocket.flat()
+      .map(x=>String(x||'').trim())
+      .filter(Boolean)
+      .map(u=>[u.toLowerCase(),u])).values()];
+    requestAutoTargets(current,cycle);
+  },waitMs);
+}
+function listUser(){
+  const room=getRoom();if(!room)return;
+  if(autoTargetTimer){clearTimeout(autoTargetTimer);autoTargetTimer=null}
+  targetList.innerHTML="";
+  clearTargetState();
+  userList.innerHTML="";
+  userCount.textContent="0";
+  autoTargetLocked=false;
+  autoTargetCycle++;
+  participantUsers=[];
+  participantExpected=new Set();
+  participantReceived=new Set();
+  for(let i=0;i<N;i++){
+    participantBySocket[i]=[];
+    if(clients[i].loggedIn)participantExpected.add(i);
+  }
+  updateTargetCount();
+  log(0,"LISTUSER: TARGET dan snapshot participant dikosongkan");
+  let sent=0;
+  for(let i=0;i<N;i++)if(clients[i].loggedIn){if(send(i,{type:"room.participants",room},true))sent++}
+  if(!sent)return;
+}
+function listRoom(){listUser()}
+function handleParticipants(m,i){
+  if(m.type!=="room.participants.result"&&m.type!=="room.participants")return false;
+  const users=extractUsers(m);
+  const merged=applyParticipantSnapshot(i,users);
+  log(i,`LISTROOM: WS${i+1} ${users.length} user | gabungan ${merged.length}`);
+  return true;
+}
+// Patch each socket handler to also process room participant results.
+function loginOne(i){
+  const c=clients[i],x=cred(i);
+  if(!x.username||!x.password){log(i,"Username/password kosong");return}
+  const generation=++c.generation;
+  c.intentionalClose=false;c.loggedIn=false;c.inRoom=false;c.balance=null;setBalance(i,"—");stopPing(i);
+  const previous=c.ws;c.ws=null;if(previous)try{previous.close(1000,"replace")}catch(e){}
+  status(i,"CONNECTING","connecting");log(i,"Connecting local proxy...");
+  const ws=new WebSocket(`${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/ws`);c.ws=ws;
+  const stale=()=>generation!==c.generation||c.ws!==ws;
+  ws.onopen=()=>{if(stale()){try{ws.close(1000,"stale")}catch(e){};return}log(i,"Proxy OPEN; menunggu auth.required")};
+  ws.onmessage=e=>{
+    if(stale())return;
+    let m;
+    try{m=JSON.parse(e.data)}catch(_){log(i,"RECV non-JSON");return}
+    dispatchSocketEvent(m,i);
+  };
+  ws.onerror=()=>{if(stale())return;status(i,"ERROR","error");log(i,"Local WebSocket proxy error")};
+  ws.onclose=e=>{if(stale())return;stopPing(i);c.loggedIn=false;c.inRoom=false;if(!c.intentionalClose)status(i,"CLOSED","offline");log(i,`CLOSED code=${e.code} reason=${e.reason||"-"}`);if(c.ws===ws)c.ws=null};
+};
+async function kickAll(){
+  if(kickRunning){
+    await stopKickAll();
+    return;
+  }
+  const room=getRoom();
+  if(!room){log(0,'KICKALL ERROR: Room wajib diisi');return;}
+  const targets=getTargetNames();
+  if(!targets.length){log(0,'KICKALL ERROR: TARGET wajib diisi');return;}
+  const loop=Math.min(200,Math.max(1,Number(document.getElementById('loopKick').value)||1));
+  const socketApplyEvery=Math.min(10,Math.max(1,Number(document.getElementById('delaySocketApplyEvery').value)||1));
+  const targetApplyEvery=Math.min(10,Math.max(1,Number(document.getElementById('delayTargetApplyEvery').value)||1));
+  const cfg={room,targets,loop,socketApplyEvery,targetApplyEvery,delaySocket:Math.max(0,Number(document.getElementById('delaySocket').value)||0),delayTarget:Math.max(0,Number(document.getElementById('delayTarget').value)||0),targetOrder:document.getElementById('targetOrder').value||'ascending',kickLimitPerWs:Math.min(200,Math.max(1,Number(document.getElementById('kickLimitPerWs').value)||150)),};
+  log(0,`KICKALL mulai: ${targets.length} target | Delay Socket setiap ${socketApplyEvery} socket | Delay Target setiap ${targetApplyEvery} target | Loop=${cfg.loop} | delaySocket=${cfg.delaySocket}ms | delayTarget=${cfg.delayTarget}ms | limit=${cfg.kickLimitPerWs}/500ms/WS`);
+  await syncBackendAutoConfig(true);
+  const resetGeneration=troopResetGeneration;
+  // Set the UI state before awaiting the HTTP response. A very short job can
+  // emit kick.job.finished before fetch() resolves; setting running only after
+  // the response would then leave the button stuck on STOP KICK.
+  kickRunning=true;
+  setKickButtonState(true);
+  try{
+    const r=await fetch('/api/kick-loop',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(cfg)});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok||d.ok===false)throw new Error(d.error||`HTTP ${r.status}`);
+    if(resetGeneration!==troopResetGeneration){
+      await fetch("/api/kick-stop",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}",cache:"no-store"}).catch(()=>{});
+      return;
+    }
+    log(0,`KICKALL diterima backend: job=${d.jobId||'-'} | ${d.targets??targets.length} target | WS ${d.websockets??0}`);
+  }catch(e){
+    if(resetGeneration!==troopResetGeneration)return;
+    kickRunning=false;
+    setKickButtonState(false);
+    log(0,'KICKALL ERROR: '+e.message);
+  }
+}
+async function stopKickAll(){
+  if(!kickRunning)return;
+  const room=getRoom();
+  try{
+    const r=await fetch('/api/kick-stop',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({room})});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok||d.ok===false)throw new Error(d.error||`HTTP ${r.status}`);
+    kickRunning=false;
+    setKickButtonState(false);
+    log(0,`KICKALL dihentikan: ${d.stopped??0} job`);
+  }catch(e){log(0,'STOP KICK ERROR: '+e.message)}
+}
+function setKickButtonState(running){
+  const b=document.getElementById("kickAll");
+  if(!b)return;
+  b.textContent=running?"STOP KICK":"KICK ALL";
+  b.classList.toggle("danger",!running);
+  b.classList.toggle("primary",running);
+}
+
+function escapeHtml(v){return String(v).replace(/[&<>'"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[ch]))}
+const bankClient={ws:null,loggedIn:false,pingTimer:null,intentionalClose:false,generation:0,balance:null};
+const bankBalanceEl=document.getElementById("bankBalance"),flatStatusEl=document.getElementById("flatStatus");
+const flatReportBody=document.getElementById('flatReportBody'),flatProgressFill=document.getElementById('flatProgressFill'),flatSummary=document.getElementById('flatSummary');
+const flatRun={active:false,pending:[],pendingByKey:new Map(),sent:0,done:0,failed:0,total:0,totalSent:0};
+const troopEvenOutRun={active:false,pending:null};
+function troopEvenOutStatus(message,ok=false){
+  const el=document.getElementById('evenOutTroopStatus');
+  if(el){el.textContent=message;el.style.color=ok?'#22c55e':'#94a3b8'}
+}
+function settleTroopTransfer(i,ok,message=''){
+  const pending=troopEvenOutRun.pending;
+  if(!pending||pending.i!==i)return false;
+  troopEvenOutRun.pending=null;
+  clearTimeout(pending.timer);
+  pending.resolve({ok,message});
+  return true;
+}
+function waitForTroopTransfer(i,timeoutMs=12000){
+  return new Promise(resolve=>{
+    const pending={i,resolve,timer:null};
+    pending.timer=setTimeout(()=>{
+      if(troopEvenOutRun.pending===pending)troopEvenOutRun.pending=null;
+      resolve({ok:false,message:'timeout menunggu feedback transfer'});
+    },timeoutMs);
+    troopEvenOutRun.pending=pending;
+  });
+}
+
+function setBankBalance(value){bankClient.balance=value;bankBalanceEl.textContent=formatNominal(value)}
+function bankStatus(text,ok=false){flatStatusEl.textContent=text;flatStatusEl.style.color=ok?"#22c55e":"#94a3b8"}
+function startBankPing(){stopBankPing();bankClient.pingTimer=setInterval(()=>{if(bankClient.ws?.readyState===WebSocket.OPEN)bankClient.ws.send(JSON.stringify({type:"ping"}))},40000)}
+function stopBankPing(){if(bankClient.pingTimer){clearInterval(bankClient.pingTimer);bankClient.pingTimer=null}}
+function bankSend(payload){if(!bankClient.ws||bankClient.ws.readyState!==WebSocket.OPEN){bankStatus("Bank socket belum terhubung.");return false}bankClient.ws.send(JSON.stringify(payload));return true}
+function flatRows(){return [...flatReportBody.querySelectorAll('tr')].map((tr)=>tr)}
+function flatCell(i,col){const tr=document.getElementById(`flat-row-${i}`);return tr?.querySelector(`[data-col="${col}"]`)}
+function updateFlatSummary(){
+  const pct=flatRun.total?Math.min(100,(flatRun.done+flatRun.failed)/flatRun.total*100):0;
+  flatProgressFill.style.width=pct+'%';
+  const total=formatNominal(flatRun.totalSent);
+  flatSummary.innerHTML=`<span>Progress <b>${flatRun.done+flatRun.failed}/${flatRun.total}</b></span><span>Total kirim <b>${total}</b></span><span>Berhasil <b>${flatRun.done}</b></span><span>Gagal <b>${flatRun.failed}</b></span>`;
+}
+function buildFlatReport(rows){
+  flatReportBody.innerHTML=rows.map(r=>`<tr id="flat-row-${r.i}"><td>WS${r.i+1}</td><td>${escapeHtml(r.username||'-')}</td><td data-col="initial">${formatNominal(r.current)}</td><td data-col="target">${formatNominal(r.target)}</td><td data-col="diff">${formatNominal(r.diff)}</td><td data-col="sent">0</td><td data-col="status" class="flat-wait">${r.state}</td><td data-col="bank">${formatNominal(bankClient.balance)}</td></tr>`).join('');
+}
+function escapeHtml(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function updateFlatRow(i,patch={}){for(const [k,v] of Object.entries(patch)){const el=flatCell(i,k);if(!el)continue;el.textContent=typeof v==='number'?formatNominal(v):String(v);if(k==='status'){el.className=String(v).includes('GAGAL')?'flat-error':String(v).includes('BERHASIL')?'flat-ok':'flat-wait'}}}
+function flatMessageData(m){
+  const d=m?.data??m?.result??m?.transfer??m;
+  return d&&typeof d==='object'?d:{};
+}
+function extractFlatTransferKey(m){
+  const d=flatMessageData(m);
+  const candidates=[m?.idempotency_key,m?.idempotencyKey,m?.transfer_id,m?.transferId,d?.idempotency_key,d?.idempotencyKey,d?.transfer_id,d?.transferId,d?.request_id,d?.requestId];
+  for(const v of candidates){if(v!==undefined&&v!==null&&String(v).trim())return String(v).trim()}
+  return '';
+}
+function extractFlatTransferUsername(m){
+  const d=flatMessageData(m);
+  const candidates=[m?.to_username,m?.toUsername,m?.username,d?.to_username,d?.toUsername,d?.username,d?.recipient_username,d?.recipientUsername];
+  for(const v of candidates){if(v!==undefined&&v!==null&&String(v).trim())return String(v).trim()}
+  return '';
+}
+function takeFlatPending(m){
+  const key=extractFlatTransferKey(m);
+  if(key&&flatRun.pendingByKey.has(key)){
+    const item=flatRun.pendingByKey.get(key);
+    flatRun.pendingByKey.delete(key);
+    const pos=flatRun.pending.indexOf(item);if(pos>=0)flatRun.pending.splice(pos,1);
+    return item;
+  }
+  const username=extractFlatTransferUsername(m).toLowerCase();
+  if(username){
+    const matches=flatRun.pending.filter(x=>x.username.toLowerCase()===username);
+    if(matches.length===1){
+      const item=matches[0];
+      flatRun.pendingByKey.delete(item.key);
+      flatRun.pending.splice(flatRun.pending.indexOf(item),1);
+      return item;
+    }
+  }
+  // wallet.transfer.result dari API tidak selalu mengembalikan
+  // idempotency_key/to_username. Karena command direct diproses berurutan
+  // pada satu WebSocket, korelasikan feedback tanpa identifier dengan
+  // transfer tertua yang masih pending (FIFO).
+  if(flatRun.pending.length){
+    const item=flatRun.pending.shift();
+    flatRun.pendingByKey.delete(item.key);
+    return item;
+  }
+  return null;
+}
+function finishFlatIfReady(){
+  if(!flatRun.pending.length&&!flatRun.active){
+    bankStatus('Semua feedback transfer diterima. Meminta saldo terbaru WS1–WS10 dan bank...');
+    refreshFlatBalances(window.__flatRows||[]);
+  }
+}
+function handleFlatTransferResult(m){
+  const item=takeFlatPending(m);
+  const b=extractBalance(m);
+  if(b!==null)setBankBalance(b);
+  if(!item){bankStatus('Feedback transfer diterima tetapi ID transfer tidak cocok; laporan tidak diubah.');return}
+  const sent=item.amount;
+  updateFlatRow(item.i,{sent,status:`BERHASIL (${formatNominal(sent)})`,bank:b??bankClient.balance});
+  flatRun.done++;flatRun.totalSent+=sent;updateFlatSummary();
+  finishFlatIfReady();
+}
+function normalizeFlatTransferStatus(message){
+  const raw=String(message||"").trim();
+  if(/internal api status=400\\s+body=\\{"error":"developer_wallet_transfer_failed","message":"minimum balance 10 CR is required"\\}/i.test(raw)
+     || (/developer_wallet_transfer_failed/i.test(raw) && /minimum balance 10 CR is required/i.test(raw))){
+    return "GAGAL: minimal saldo bank 10";
+  }
+  return `GAGAL: ${raw||"transfer ditolak"}`;
+}
+function handleFlatTransferError(m){
+  const item=takeFlatPending(m);
+  if(!item){bankStatus('Error transfer diterima tetapi ID transfer tidak cocok; laporan tidak diubah.');return}
+  const msg=String(m?.data?.message||m?.data?.error||flatMessageData(m)?.message||flatMessageData(m)?.error||'transfer ditolak');
+  updateFlatRow(item.i,{sent:0,status:normalizeFlatTransferStatus(msg),bank:bankClient.balance});
+  flatRun.failed++;updateFlatSummary();
+  finishFlatIfReady();
+}
+function maybeFinishFlatRefresh(){
+  if(!flatRefreshState)return;
+  if(flatRefreshState.pendingWs.size>0 || !flatRefreshState.bankDone)return;
+  const state=flatRefreshState;flatRefreshState=null;
+  for(const r of state.rows){
+    const current=troopBalance(r.i);
+    updateFlatRow(r.i,{initial:current??r.current, diff:current===null?'—':Math.max(0,r.target-current)});
+  }
+  bankStatus(`FLAT selesai & saldo WS1–WS10 dan bank sudah direfresh. ${flatRun.done} berhasil, ${flatRun.failed} gagal.`,flatRun.failed===0);
+}
+function refreshFlatBalances(rows){
+  flatRefreshState={pendingWs:new Set(),bankDone:false,rows};
+  for(let i=0;i<N;i++){
+    if(clients[i].loggedIn && clients[i].ws?.readyState===WebSocket.OPEN){
+      flatRefreshState.pendingWs.add(i);
+      if(!send(i,{type:'wallet.balance'},true))flatRefreshState.pendingWs.delete(i);
+    }
+  }
+  if(bankClient.loggedIn && bankClient.ws?.readyState===WebSocket.OPEN){
+    bankSend({type:'wallet.balance'});
+  }else flatRefreshState.bankDone=true;
+  maybeFinishFlatRefresh();
+}
+function handleBankMessage(m){
+  const type=String(m?.type||'').toLowerCase();
+  if(type==='auth.required'){bankSend({type:'developer.login',username:document.getElementById('usernamebank').value.trim(),password:document.getElementById('passwordbank').value});return}
+  if(type==='session.ready'){bankClient.loggedIn=true;startBankPing();const b=extractBalance(m);if(b!==null)setBankBalance(b);bankSend({type:'wallet.balance'});bankStatus('BANK ONLINE',true);return}
+  if(type==='wallet.balance.result'){const b=extractBalance(m);if(b!==null)setBankBalance(b);if(flatRefreshState){flatRefreshState.bankDone=true;maybeFinishFlatRefresh()}return}
+  if(type==='wallet.transfer.result'){handleFlatTransferResult(m);return}
+  if(type==='session.replaced'){bankClient.loggedIn=false;stopBankPing();bankStatus('BANK SESSION REPLACED');return}
+  if(type==='error'){if(flatRun.pending.length)handleFlatTransferError(m);else{bankClient.loggedIn=false;stopBankPing();bankStatus(normalizeFlatTransferStatus(String(m?.data?.message||m?.data?.error||'unknown error')));}return}
+}
+function loginBank(){
+  const username=document.getElementById('usernamebank').value.trim(),password=document.getElementById('passwordbank').value;
+  if(!username||!password){bankStatus('UsernameBank dan PasswordBank wajib diisi.');return}
+  const gen=++bankClient.generation;bankClient.intentionalClose=false;bankClient.loggedIn=false;stopBankPing();
+  const old=bankClient.ws;bankClient.ws=null;if(old)try{old.close(1000,'replace')}catch(_){}
+  bankStatus('CONNECTING BANK...');setBankBalance('—');
+  const ws=new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws`);bankClient.ws=ws;
+  const stale=()=>gen!==bankClient.generation||bankClient.ws!==ws;
+  ws.onopen=()=>{if(stale()){try{ws.close()}catch(_){};return}try{ws.send(JSON.stringify({type:"proxy.role",role:"bank"}))}catch(_){}bankStatus('Menunggu auth bank...')};
+  ws.onmessage=e=>{if(stale())return;try{handleBankMessage(JSON.parse(e.data))}catch(_){} };
+  ws.onerror=()=>{if(stale())return;bankStatus('BANK ERROR');};
+  ws.onclose=()=>{if(stale())return;stopBankPing();bankClient.loggedIn=false;if(!bankClient.intentionalClose)bankStatus('BANK OFFLINE');if(bankClient.ws===ws)bankClient.ws=null};
+}
+function clearFlatState(message='FLAT state dibersihkan.'){
+  flatRun.active=false;
+  flatRun.pending.length=0;
+  flatRun.pendingByKey.clear();
+  flatRun.sent=0;flatRun.done=0;flatRun.failed=0;flatRun.total=0;flatRun.totalSent=0;
+  flatRefreshState=null;
+  window.__flatRows=[];
+  flatReportBody.innerHTML='';
+  flatProgressFill.style.width='0%';
+  updateFlatSummary();
+  bankStatus(message);
+}
+function refreshAllTroopBalances(){
+  let requested=0;
+  for(let i=0;i<N;i++){
+    if(clients[i].loggedIn&&clients[i].ws?.readyState===WebSocket.OPEN){
+      if(send(i,{type:'wallet.balance'},true))requested++;
+    }else setBalance(i,'—');
+  }
+  return requested;
+}
+function refreshTroopBalancesBeforeFlat(){
+  if(flatPreRefreshState){return flatPreRefreshState.promise;}
+  const pendingWs=new Set();
+  for(let i=0;i<N;i++){
+    if(clients[i].loggedIn&&clients[i].ws?.readyState===WebSocket.OPEN){
+      pendingWs.add(i);
+    }else setBalance(i,'—');
+  }
+  if(!pendingWs.size)return Promise.resolve(true);
+  let resolvePromise;
+  const promise=new Promise(resolve=>{resolvePromise=resolve});
+  flatPreRefreshState={pendingWs,resolve:resolvePromise,promise};
+  for(const i of [...pendingWs]){
+    if(!send(i,{type:'wallet.balance'},true))pendingWs.delete(i);
+  }
+  if(pendingWs.size===0){flatPreRefreshState=null;resolvePromise(true);return promise}
+  setTimeout(()=>{
+    if(flatPreRefreshState?.promise!==promise)return;
+    const resolve=flatPreRefreshState.resolve;
+    flatPreRefreshState=null;
+    if(resolve)resolve(false);
+  },7000);
+  return promise;
+}
+function logoutBank(){
+  clearFlatState('FLAT state dibersihkan. Menyegarkan saldo WS1–WS10...');
+  refreshAllTroopBalances();
+  bankClient.intentionalClose=true;bankClient.generation++;stopBankPing();bankClient.loggedIn=false;const ws=bankClient.ws;bankClient.ws=null;if(ws){try{if(ws.readyState===WebSocket.OPEN)ws.send(JSON.stringify({type:'proxy.logout'}))}catch(_){}try{ws.close(1000,'logout')}catch(_){}}setBankBalance('—');bankStatus('Bank logout. Koneksi BANK ditutup; saldo WS1–WS10 direfresh.');
+}
+function parseFlatAmount(){const raw=document.getElementById('flatAmount').value.trim().replace(/,/g,'.');const n=Number(raw);return Number.isFinite(n)&&n>=0?n:null}
+function troopBalance(i){const raw=document.getElementById(`balance-${i}`)?.textContent?.trim()||'';const n=Number(raw.replace(/,/g,'.'));return Number.isFinite(n)?n:null}
+function transferId(){return `flat-${Date.now()}-${crypto.randomUUID?.()||Math.random().toString(36).slice(2)}`}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function flatAll(){
+  if(flatRun.active||flatRun.pending.length){bankStatus('FLAT masih memproses feedback API.');return}
+  if(!bankClient.loggedIn){bankStatus('Login bank terlebih dahulu.');return}
+  const target=parseFlatAmount(),pin=document.getElementById('pinbank').value;
+  if(target===null){bankStatus('Jumlah Flat tidak valid.');return}
+  if(!pin){bankStatus('PIN wajib diisi untuk transfer.');return}
+  if(bankClient.ws?.readyState!==WebSocket.OPEN){bankStatus('Bank socket belum OPEN.');return}
+  flatRun.active=true;
+  flatStatusEl.style.color='#f59e0b';
+  bankStatus('Menyegarkan saldo WS1–WS10 sebelum FLAT...');
+  const refreshed=await refreshTroopBalancesBeforeFlat();
+  if(!bankClient.loggedIn||bankClient.ws?.readyState!==WebSocket.OPEN){
+    flatRun.active=false;
+    bankStatus('FLAT dibatalkan: bank terputus saat refresh saldo.');
+    return;
+  }
+  if(!refreshed)bankStatus('Refresh saldo selesai dengan timeout; memakai saldo terbaru yang berhasil diterima.');
+  const rows=[];
+  for(let i=0;i<N;i++){
+    const username=cred(i).username,current=troopBalance(i);
+    let state='SIAP',diff=null;
+    if(!username||!clients[i].loggedIn)state='DILEWATI: WS OFFLINE';
+    else if(current===null)state='DILEWATI: SALDO BELUM ADA';
+    else{diff=target-current;if(diff<=0)state='TIDAK PERLU';}
+    rows.push({i,username,current,target,diff,state});
+  }
+  window.__flatRows=rows;buildFlatReport(rows);flatRun.pending=[];flatRun.pendingByKey.clear();flatRun.sent=0;flatRun.done=0;flatRun.failed=0;flatRun.total=rows.filter(r=>r.diff>0).length;flatRun.totalSent=0;updateFlatSummary();
+  const requiredTotal=rows.reduce((sum,r)=>sum+(r.diff>0?r.diff:0),0);
+  const availableBank=Number(bankClient.balance);
+  if(Number.isFinite(availableBank) && requiredTotal>availableBank+0.000001){
+    for(const r of rows) if(r.diff>0) updateFlatRow(r.i,{status:'GAGAL: saldo bank tidak cukup',sent:0,bank:bankClient.balance});
+    flatRun.failed=flatRun.total;
+    flatRun.active=false;
+    updateFlatSummary();
+    bankStatus(`FLAT dibatalkan: kebutuhan ${formatNominal(requiredTotal)} CR melebihi saldo bank ${formatNominal(availableBank)} CR.`);
+    return;
+  }
+  let seq=0;
+  for(const r of rows){
+    if(r.diff===null||r.diff<=0){updateFlatRow(r.i,{status:r.state,bank:bankClient.balance});continue}
+    if(!bankClient.loggedIn||bankClient.ws?.readyState!==WebSocket.OPEN){updateFlatRow(r.i,{status:'GAGAL: BANK TERPUTUS',bank:bankClient.balance});flatRun.failed++;updateFlatSummary();continue}
+    const milli=Math.round(r.diff*1000);
+    if(milli<=0){updateFlatRow(r.i,{status:'TIDAK PERLU (<0.001)',bank:bankClient.balance});continue}
+    const amount=milli/1000,key=transferId();
+    updateFlatRow(r.i,{status:'MENGIRIM...',sent:amount,bank:bankClient.balance});
+    const pendingItem={i:r.i,username:r.username,amount,key};
+    flatRun.pending.push(pendingItem);
+    flatRun.pendingByKey.set(key,pendingItem);
+    if(!bankSend({type:'wallet.transfer',to_username:r.username,amount_milli_cr:milli,pin,idempotency_key:key})){flatRun.pendingByKey.delete(key);flatRun.pending.pop();updateFlatRow(r.i,{status:'GAGAL: SOCKET BANK',sent:0});flatRun.failed++;updateFlatSummary();continue}
+    seq++;await sleep(125);
+  }
+  flatRun.active=false;
+  updateFlatSummary();
+  if(flatRun.pending.length){
+    bankStatus(`FLAT selesai mengirim ${seq} transfer; menunggu ${flatRun.pending.length} feedback API...`);
+  }else{
+    bankStatus('FLAT selesai. Meminta saldo terbaru WS1–WS10 dan bank...');
+    refreshFlatBalances(rows);
+  }
+}
+
+
+async function evenOutTroopBalances(){
+  if(troopEvenOutRun.active){troopEvenOutStatus('Proses ratakan saldo masih berjalan.');return}
+  if(flatRun.active||flatRun.pending.length){troopEvenOutStatus('Selesaikan proses FLAT bank terlebih dahulu.');return}
+  const pin=document.getElementById('pinTroop').value;
+  if(!pin){troopEvenOutStatus('PIN Troop wajib diisi.');return}
+  const usernames=Array.from({length:N},(_,i)=>cred(i).username);
+  if(usernames.some(x=>!x)||new Set(usernames.map(x=>x.toLowerCase())).size!==N){
+    troopEvenOutStatus('Pastikan username WS1–WS10 terisi dan semuanya unik.');return;
+  }
+  const offline=[];
+  for(let i=0;i<N;i++){
+    if(!clients[i].loggedIn||clients[i].ws?.readyState!==WebSocket.OPEN)offline.push(`WS${i+1}`);
+  }
+  if(offline.length){troopEvenOutStatus(`Dibatalkan: ${offline.join(', ')} belum online.`);return}
+  const button=document.getElementById('evenOutTroopButton');
+  troopEvenOutRun.active=true;
+  button.disabled=true;
+  let transferCount=0,totalTransferred=0;
+  try{
+    troopEvenOutStatus('Memperbarui saldo awal WS1–WS10...');
+    const refreshed=await refreshTroopBalancesBeforeFlat();
+    if(!refreshed)throw new Error('Timeout saat membaca saldo troop.');
+    let balances=Array.from({length:N},(_,i)=>troopBalance(i));
+    if(balances.some(v=>v===null||!Number.isFinite(v)||v<0))throw new Error('Ada saldo WS yang belum terbaca atau tidak valid.');
+    const maxTransfers=100;
+    while(transferCount<maxTransfers){
+      const average=balances.reduce((a,b)=>a+b,0)/N;
+      const donors=balances.map((balance,i)=>({i,balance,gap:balance-average}))
+        .filter(x=>x.gap>0.0005 && x.balance>10).sort((a,b)=>b.gap-a.gap);
+      const receivers=balances.map((balance,i)=>({i,balance,gap:average-balance}))
+        .filter(x=>x.gap>0.0005).sort((a,b)=>b.gap-a.gap);
+      let pair=null,amount=0;
+      for(const donor of donors){
+        for(const receiver of receivers){
+          const possible=Math.min(donor.gap,receiver.gap);
+          const milli=Math.floor(possible*1000+1e-7);
+          if(milli>=1){pair={donor,receiver};amount=milli/1000;break}
+        }
+        if(pair)break;
+      }
+      if(!pair)break;
+      const {donor,receiver}=pair;
+      const milli=Math.round(amount*1000);
+      const key=transferId();
+      troopEvenOutStatus(`Mengirim ${formatNominal(amount)} CR: WS${donor.i+1} → WS${receiver.i+1}...`);
+      const feedback=waitForTroopTransfer(donor.i);
+      const sent=send(donor.i,{
+        type:'wallet.transfer',
+        to_username:usernames[receiver.i],
+        amount_milli_cr:milli,
+        pin,
+        idempotency_key:key
+      },true);
+      if(!sent){
+        settleTroopTransfer(donor.i,false,'Socket pengirim tidak tersedia');
+        const result=await feedback;
+        throw new Error(result.message||'Gagal mengirim transfer.');
+      }
+      const result=await feedback;
+      if(!result.ok)throw new Error(`WS${donor.i+1} → WS${receiver.i+1}: ${result.message}`);
+      transferCount++;
+      totalTransferred+=amount;
+      troopEvenOutStatus(`Transfer ${transferCount} berhasil. Memperbarui saldo semua WS...`);
+      const refreshedAfter=await refreshTroopBalancesBeforeFlat();
+      if(!refreshedAfter)throw new Error('Timeout saat verifikasi saldo setelah transfer.');
+      balances=Array.from({length:N},(_,i)=>troopBalance(i));
+      if(balances.some(v=>v===null||!Number.isFinite(v)||v<0))throw new Error('Saldo tidak lengkap setelah transfer; proses dihentikan demi keamanan.');
+    }
+    const finalAverage=balances.reduce((a,b)=>a+b,0)/N;
+    const spread=Math.max(...balances)-Math.min(...balances);
+    const resultText=spread<=0.001
+      ? `Saldo WS1–WS10 sudah rata. Rata-rata ${formatNominal(finalAverage)} CR.`
+      : `Proses selesai: ${transferCount} transfer (${formatNominal(totalTransferred)} CR). Sisa selisih ${formatNominal(spread)} CR karena tidak ada WS dengan saldo lebih dari 10 CR yang dapat mengirim untuk mengurangi selisih.`;
+    troopEvenOutStatus(resultText,spread<=0.001);
+  }catch(error){
+    troopEvenOutStatus(`Dihentikan: ${error.message||String(error)}. Periksa saldo terbaru sebelum mencoba lagi.`);
+    refreshAllTroopBalances();
+  }finally{
+    troopEvenOutRun.active=false;
+    troopEvenOutRun.pending=null;
+    button.disabled=false;
+  }
+}
+
+function safeDownloadName(name){
+  let n=String(name||"migsock").trim().replace(/\.(json|txt)$/i,"").replace(/[^a-zA-Z0-9._ -]/g,"_");
+  if(!n)n="migsock";
+  return n;
+}
+function collectKickSet(){
+  return {
+    version:1,
+    delaySocket:Number(document.getElementById("delaySocket").value)||0,
+    socketApplyEvery:Math.min(10,Math.max(1,Number(document.getElementById("delaySocketApplyEvery").value)||1)),
+    targetApplyEvery:Math.min(10,Math.max(1,Number(document.getElementById("delayTargetApplyEvery").value)||1)),
+    delayTarget:Number(document.getElementById("delayTarget").value)||0,
+    targetOrder:document.getElementById("targetOrder").value||"ascending",
+    kickLimitPerWs:Number(document.getElementById("kickLimitPerWs").value)||150,
+    loopKick:Number(document.getElementById("loopKick").value)||1,
+    
+    timerKickall:Number(document.getElementById("timerKickall").value)||0
+  };
+}
+function applyKickSet(cfg){
+  document.getElementById("delaySocket").value=String(cfg.delaySocket??25);
+  document.getElementById("delaySocketApplyEvery").value=String(Math.min(10,Math.max(1,Number(cfg.socketApplyEvery??1)||1)));
+  document.getElementById("delayTargetApplyEvery").value=String(Math.min(10,Math.max(1,Number(cfg.targetApplyEvery??1)||1)));
+  document.getElementById("delayTarget").value=String(cfg.delayTarget??20);
+  document.getElementById("targetOrder").value=["ascending","descending","random"].includes(cfg.targetOrder)?cfg.targetOrder:"ascending";
+  document.getElementById("kickLimitPerWs").value=String(Math.min(200,Math.max(1,Number(cfg.kickLimitPerWs??150)||150)));
+  document.getElementById("loopKick").value=String(cfg.loopKick??65);
+  
+  document.getElementById("timerKickall").value=String(cfg.timerKickall??1500);
+}
+async function saveKickSet(){
+  const name=document.getElementById("saveLoadSet").value.trim() || "kickset";
+  const safeName=name.replace(/[^a-zA-Z0-9_-]+/g,"_").replace(/^_+|_+$/g,"") || "kickset";
+  const format=document.getElementById("saveLoadSetFormat").value;
+  const blob=new Blob([JSON.stringify(collectKickSet(),null,2)],{type:format==="json"?"application/json":"text/plain"});
+  await saveBlobToPhoneFolder("set",safeName.replace(/\.(json|txt)$/i,"")+"."+format,blob);
+}
+function openNativeFilePicker(input){
+  if(!input) return false;
+  // Reset before opening so choosing the same file again still fires "change".
+  try{ input.value=""; }catch(_error){}
+  // Must run synchronously in the button's trusted click event on Android.
+  try{
+    if(typeof input.showPicker === "function"){
+      input.showPicker();
+      return true;
+    }
+  }catch(error){
+    console.debug("showPicker tidak tersedia, memakai click():",error);
+  }
+  try{
+    input.click();
+    return true;
+  }catch(error){
+    console.error("Pemilih file gagal dibuka:",error);
+    return false;
+  }
+}
+function loadKickSet(){
+  const picker=document.getElementById("loadSetFile");
+  if(!openNativeFilePicker(picker)) console.error("Tidak dapat membuka pemilih file LOAD SET.");
+}
+document.getElementById("loadSetFile").addEventListener("change",async function(){
+  const file=this.files?.[0];
+  if(!file)return;
+  try{
+    const raw=typeof file.text==="function"?await file.text():await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result??""));reader.onerror=()=>reject(reader.error||new Error("File tidak dapat dibaca."));reader.readAsText(file);});
+    const cfg=JSON.parse(raw.replace(/^\uFEFF/,"").trim());
+    applyKickSet(cfg);
+    const base=file.name.replace(/\.(json|txt)$/i,"");
+    if(base)document.getElementById("saveLoadSet").value=base;
+    document.getElementById("saveLoadSetFormat").value=/\.txt$/i.test(file.name)?"txt":"json";
+  }catch(error){
+    console.error("LOAD SET gagal:",error);
+    alert("Gagal memuat file: "+(error?.message||"format tidak valid."));
+  }finally{
+    this.value="";
+  }
+});
+
+function collectConfig(){
+  const accounts=[];
+  for(let i=0;i<N;i++){
+    accounts.push({
+      username:document.getElementById(`user-${i}`).value,
+      password:document.getElementById(`pass-${i}`).value
+    });
+  }
+  return {
+    version:2,
+    nameTroop:document.getElementById("nametroop").value,
+    nameTroopSuffix:document.getElementById("nametroopSuffix").value,
+    start:Number(document.getElementById("start").value),
+    end:Number(document.getElementById("end").value),
+    passwordAll:document.getElementById("passwordAll").value,
+    accounts
+  };
+}
+
+async function saveBlobToPhoneFolder(folderName,fileName,blob){
+  if(typeof window.showDirectoryPicker==="function"){
+    try{
+      const parent=await window.showDirectoryPicker({mode:"readwrite"});
+      const folder=await parent.getDirectoryHandle(folderName,{create:true});
+      const fileHandle=await folder.getFileHandle(fileName,{create:true});
+      const writable=await fileHandle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      alert(`Berhasil disimpan ke folder ${folderName} di penyimpanan HP.`);
+      return true;
+    }catch(err){
+      if(err&&err.name==="AbortError")return false;
+      console.error("Penyimpanan folder HP gagal:",err);
+      alert("Tidak dapat menyimpan langsung ke folder. Pastikan browser memberi izin akses folder, lalu coba lagi.");
+      return false;
+    }
+  }
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download=fileName;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+  return false;
+}
+
+function configStorageKey(name){
+  return SAVE_PREFIX + String(name||"").trim();
+}
+function downloadConfigBlob(fileName,blob){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download=fileName;
+  a.style.display="none";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),5000);
+}
+async function saveConfig(){
+  const name=saveLoadEl.value.trim();
+  if(!name){console.warn("SaveLoad: nama belum diisi.");return}
+  const range=getRange();
+  if(!range){console.warn("SaveLoad: rentang Awal/Akhir tidak valid.");return}
+  const cfg=collectConfig();
+  const format=document.getElementById("saveLoadFormat").value==="txt"?"txt":"json";
+  const serialized=JSON.stringify(cfg,null,2);
+  const key=configStorageKey(name);
+  let localSaved=false;
+  try{
+    localStorage.setItem(key,serialized);
+    localSaved=true;
+  }catch(error){
+    console.error("SaveLoad lokal gagal:",error);
+  }
+  const blob=new Blob([serialized],{type:format==="json"?"application/json":"text/plain;charset=utf-8"});
+  try{
+    downloadConfigBlob(safeDownloadName(name)+"."+format,blob);
+  }catch(error){
+    console.error("Ekspor SaveLoad gagal:",error);
+  }
+}
+function applyConfig(cfg){
+  if(!cfg || typeof cfg!=="object" || Array.isArray(cfg))
+    throw new Error("Struktur file tidak valid.");
+  const start=String(cfg.start??"01"), end=String(cfg.end??"10");
+  const startNum=Number(start), endNum=Number(end);
+  if(!/^\d+$/.test(start)||!/^\d+$/.test(end)||
+     !Number.isSafeInteger(startNum)||!Number.isSafeInteger(endNum)||
+     startNum<0||endNum<startNum)
+    throw new Error("Nilai rentang Awal/Akhir tidak valid.");
+  if(cfg.accounts!==undefined && !Array.isArray(cfg.accounts))
+    throw new Error("Daftar akun pada file tidak valid.");
+  const accounts=Array.isArray(cfg.accounts)?cfg.accounts:[];
+  // Validate all account records before changing any visible field.
+  for(let i=0;i<Math.min(accounts.length,N);i++){
+    if(accounts[i]!==null && (typeof accounts[i]!=="object" || Array.isArray(accounts[i])))
+      throw new Error(`Data akun ke-${i+1} tidak valid.`);
+  }
+  document.getElementById("nametroop").value=String(cfg.nameTroop??"");
+  document.getElementById("nametroopSuffix").value=String(cfg.nameTroopSuffix??"");
+  document.getElementById("start").value=start;
+  document.getElementById("end").value=end;
+  document.getElementById("passwordAll").value=String(cfg.passwordAll??"");
+  for(let i=0;i<N;i++){
+    const account=accounts[i]||{};
+    document.getElementById(`user-${i}`).value=String(account.username??"");
+    document.getElementById(`pass-${i}`).value=String(account.password??"");
+  }
+  refreshUserList();
+}
+function setSaveLoadStatus(message,isError=false){
+  const status=document.getElementById("saveLoadStatus");
+  if(!status)return;
+  status.textContent=message;
+  status.style.color=isError?"#e57373":"";
+}
+function openSaveLoadFilePicker(){
+  const picker=document.getElementById("loadFile");
+  // Called directly from LOAD's click handler; do not await before opening it.
+  if(!openNativeFilePicker(picker)){
+    setSaveLoadStatus("Tidak dapat membuka pemilih file. Coba tekan LOAD lagi.",true);
+  }
+}
+function loadConfig(){
+  // LOAD is an explicit file action: always open the device picker so files in
+  // the MIGSOCK folder can be selected even if a same-named local copy exists.
+  setSaveLoadStatus("Pilih file JSON atau TXT untuk dimuat.");
+  openSaveLoadFilePicker();
+}
+document.getElementById("loadFile").addEventListener("change",async function(e){
+  const file=e.target.files?.[0];
+  if(!file){
+    setSaveLoadStatus("Tidak ada file yang dipilih.");
+    return;
+  }
+  try{
+    const raw=typeof file.text==="function"
+      ? await file.text()
+      : await new Promise((resolve,reject)=>{
+          const reader=new FileReader();
+          reader.onload=()=>resolve(String(reader.result??""));
+          reader.onerror=()=>reject(reader.error||new Error("File tidak dapat dibaca."));
+          reader.readAsText(file);
+        });
+    const cfg=JSON.parse(raw.replace(/^\uFEFF/,"").trim());
+    applyConfig(cfg);
+    document.getElementById("saveLoad").value=file.name.replace(/\.(json|txt)$/i,"");
+    document.getElementById("saveLoadFormat").value=/\.txt$/i.test(file.name)?"txt":"json";
+    setSaveLoadStatus("Berhasil memuat file: "+file.name);
+  }catch(err){
+    console.error("LOAD SaveLoad gagal:",err);
+    setSaveLoadStatus("Gagal memuat file: "+(err?.message||"format tidak valid."),true);
+  }finally{
+    e.target.value="";
+  }
+});
+document.getElementById("loadFile").addEventListener("cancel",function(){
+  setSaveLoadStatus("Pemilihan file dibatalkan.");
+});
+document.getElementById("headerLogout").onclick=async function(){
+  const button=this;
+  button.disabled=true;
+  try {
+    const response=await fetch("/api/auth/logout",{method:"POST",credentials:"same-origin"});
+    if(!response.ok) throw new Error("Logout panel gagal ("+response.status+")");
+    location.href="/login";
+  } catch(error) {
+    button.disabled=false;
+    alert(error.message||"Logout panel gagal. Silakan coba lagi.");
+  }
+};document.getElementById("loginBank").onclick=loginBank;document.getElementById("logoutBank").onclick=logoutBank;document.getElementById("flatButton").onclick=flatAll;document.getElementById("evenOutTroopButton").onclick=evenOutTroopBalances;document.getElementById("loginAll").onclick=loginAll;document.getElementById("logoutAll").onclick=logoutAll;document.getElementById("enterAll").onclick=enterAll;document.getElementById("leaveAll").onclick=leaveAll;document.getElementById("generateTroop").onclick=generateTroop;document.getElementById("setPass").onclick=setPass;document.getElementById("listRoom").onclick=listUser;document.getElementById("saveConfig").onclick=saveConfig;document.getElementById("loadConfig").onclick=loadConfig;document.getElementById("clearTarget").onclick=clearTargets;document.getElementById("kickAll").onclick=kickAll;document.getElementById("saveSet").onclick=saveKickSet;document.getElementById("loadSet").onclick=loadKickSet;document.getElementById("resetCountdown").onclick=resetCountdownTimer;render();refreshUserList();updateTargetCount();void syncBackendAutoConfig();
+
+/* Isolated UI preference: no task, WebSocket, timer, or login functions are modified. */
+(function(){
+  const select=document.getElementById("uiTheme");
+  if(!select)return;
+  const valid=["midnight","light","ocean","emerald","compact","amoled","purple","crimson","sunset","rose","slate"];
+  function setUi(name){
+    if(!valid.includes(name))name="midnight";
+    document.body.dataset.ui=name==="midnight"?"midnight":name;
+    select.value=name;
+    document.querySelectorAll("[data-ui-choice]").forEach(btn=>{
+      const active=btn.dataset.uiChoice===name;
+      btn.classList.toggle("active",active);
+      btn.setAttribute("aria-pressed",active?"true":"false");
+    });
+    try{localStorage.setItem("migsock-ui-theme",name)}catch(_e){}
+  }
+  select.addEventListener("change",()=>setUi(select.value));
+  let saved="midnight";
+  try{saved=localStorage.getItem("migsock-ui-theme")||"midnight"}catch(_e){}
+  setUi(saved);
+})();
+
+// Keep the backend's auto-KickAll configuration current before room.kick.state arrives.
+syncBackendAutoConfig();
+setInterval(syncBackendAutoConfig,500);
+</script>
+
+<style id="kick-option-b-inline-controls-final">
+/* Requested mobile layout: Save/Load share the SaveLoad input row; Suicide toggle and Kick All share one compact row. */
+.kick-mode-layout.kick-layout-option-b{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:7px!important;align-items:start!important}
+.kick-layout-option-b .kick-save-input-row{display:grid!important;grid-template-columns:minmax(0,1fr) 78px 78px!important;gap:5px!important;align-items:stretch!important}
+.kick-layout-option-b .kick-save-input-row #saveLoadSet{width:100%!important;min-width:0!important;height:36px!important;min-height:36px!important;box-sizing:border-box!important}
+.kick-layout-option-b .kick-save-input-row #saveSet,.kick-layout-option-b .kick-save-input-row #loadSet{width:100%!important;min-width:0!important;height:36px!important;min-height:36px!important;padding:4px 3px!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:3px!important;box-sizing:border-box!important;font-size:9px!important;line-height:1!important;letter-spacing:0!important;white-space:nowrap!important;border-radius:8px!important}
+.kick-layout-option-b .kick-save-input-row .kick-btn-icon{font-size:14px!important}
+.kick-layout-option-b 
+.kick-layout-option-b .kick-action-grid.kick-mode-actions{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:6px!important;width:100%!important;margin-top:0!important;align-items:stretch!important}
+.kick-layout-option-b .kick-mode-actions #suicideToggle,.kick-layout-option-b .kick-mode-actions #kickAll{width:100%!important;min-width:0!important;height:36px!important;min-height:36px!important;max-height:36px!important;margin:0!important;padding:5px 4px!important;box-sizing:border-box!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:4px!important;font-size:10px!important;line-height:1!important;white-space:nowrap!important;border-radius:8px!important}
+.kick-layout-option-b .kick-mode-actions #kickAll{align-self:stretch!important;box-shadow:0 4px 10px rgba(239,68,68,.14)!important}
+@media(max-width:390px){.kick-layout-option-b .kick-save-input-row{grid-template-columns:minmax(0,1fr) 66px 66px!important;gap:4px!important}.kick-layout-option-b .kick-save-input-row #saveSet,.kick-layout-option-b .kick-save-input-row #loadSet{font-size:8px!important;padding:3px 1px!important}.kick-layout-option-b .kick-save-input-row .kick-btn-icon{font-size:12px!important}.kick-layout-option-b .kick-mode-actions #suicideToggle,.kick-layout-option-b .kick-mode-actions #kickAll{height:34px!important;min-height:34px!important;max-height:34px!important;font-size:9px!important}}
+</style>
+
+
+<style id="final-suicide-kickall-side-by-side">
+/* Explicit final layout: Suicide toggle and Kick All share one row. */
+.kick-layout-option-b .kick-mode-layout .kick-action-grid.kick-mode-actions,
+.kick-layout-option-b .kick-action-grid.kick-mode-actions{
+  display:grid!important; grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  grid-auto-flow:row!important; flex-direction:initial!important;
+  align-items:stretch!important; justify-content:stretch!important;
+  width:100%!important; min-width:0!important; gap:6px!important;
+  margin:7px 0 0!important; padding:0!important; box-sizing:border-box!important;
+}
+.kick-layout-option-b .kick-action-grid.kick-mode-actions #suicideToggle,
+.kick-layout-option-b .kick-action-grid.kick-mode-actions #kickAll{
+  grid-column:auto!important; grid-row:1!important; position:static!important;
+  width:100%!important; min-width:0!important; max-width:100%!important;
+  height:36px!important; min-height:36px!important; max-height:36px!important;
+  margin:0!important; align-self:stretch!important; box-sizing:border-box!important;
+}
+@media(max-width:390px){
+ .kick-layout-option-b .kick-action-grid.kick-mode-actions{gap:5px!important}
+ .kick-layout-option-b .kick-action-grid.kick-mode-actions #suicideToggle,
+ .kick-layout-option-b .kick-action-grid.kick-mode-actions #kickAll{height:34px!important;min-height:34px!important;max-height:34px!important}
+}
+
+/* Keep Delay Apply option boxes the same width as their neighboring fields. */
+.duel-settings-row .field{min-width:0!important;}
+.duel-settings-row select#delaySocketApplyEvery,
+.duel-settings-row select#delayTargetApplyEvery{display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important;}
+</style>
+
+<style id="compact-json-txt-format-selectors">
+/* Keep each SaveLoad textbox compact, with its JSON/TXT selector immediately beside it. */
+.save-row{grid-template-columns:minmax(0,1fr) 70px 70px!important;gap:6px!important}
+.save-row .field:first-child{display:grid!important;grid-template-columns:minmax(0,125px) 54px!important;justify-content:start!important;gap:4px!important;min-width:0!important}
+.save-row .field:first-child label{grid-column:1/-1!important}
+.save-row .field:first-child #saveLoad{width:100%!important;min-width:0!important;max-width:125px!important;box-sizing:border-box!important}
+.save-row #saveLoadFormat{width:54px!important;min-width:54px!important;max-width:54px!important;padding:2px 3px!important;font-size:10px!important;letter-spacing:0!important;white-space:nowrap!important;box-sizing:border-box!important}
+.kick-layout-option-b .kick-save-input-row{grid-template-columns:minmax(0,125px) 54px 78px 78px!important;justify-content:start!important;gap:5px!important}
+.kick-layout-option-b .kick-save-input-row #saveLoadSet{width:100%!important;min-width:0!important;max-width:125px!important;box-sizing:border-box!important}
+.kick-layout-option-b .kick-save-input-row #saveLoadSetFormat{width:54px!important;min-width:54px!important;max-width:54px!important;padding:2px 3px!important;font-size:10px!important;letter-spacing:0!important;white-space:nowrap!important;box-sizing:border-box!important}
+@media(max-width:390px){
+ .save-row{grid-template-columns:minmax(0,1fr) 56px 56px!important;gap:4px!important}
+ .save-row .field:first-child{grid-template-columns:minmax(0,105px) 54px!important;gap:4px!important}
+ .save-row .field:first-child #saveLoad{max-width:105px!important}
+ .save-row #saveLoadFormat{width:54px!important;min-width:54px!important;max-width:54px!important;font-size:10px!important;padding:2px 3px!important}
+ .kick-layout-option-b .kick-save-input-row{grid-template-columns:minmax(0,105px) 54px 66px 66px!important;gap:4px!important}
+ .kick-layout-option-b .kick-save-input-row #saveLoadSet{max-width:105px!important}
+ .kick-layout-option-b .kick-save-input-row #saveLoadSetFormat{width:54px!important;min-width:54px!important;max-width:54px!important;font-size:10px!important;padding:2px 3px!important}
+}
+
+/* NameTroop fields: keep Awal and Akhir side-by-side on every screen */
+.troop-row > .field { min-width: 0; }
+.troop-row .troop-name-field input,
+.troop-row .field input { min-width: 0; }
+.troop-row .field label { white-space: nowrap; }
+@media (max-width: 560px) {
+  .troop-row {
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr) 48px 48px !important;
+    column-gap: 6px !important;
+    row-gap: 7px !important;
+  }
+  .troop-row > .field:nth-child(1) { grid-column: 1; grid-row: 1; }
+  .troop-row > .field:nth-child(4) { grid-column: 2; grid-row: 1; }
+  .troop-row > .field:nth-child(2) { grid-column: 3; grid-row: 1; }
+  .troop-row > .field:nth-child(3) { grid-column: 4; grid-row: 1; }
+  .troop-row > .field:nth-child(5) { grid-column: 1 / -1; grid-row: 2; }
+  .troop-row > .field:nth-child(5) button { width: 100%; }
+  .troop-row .field label { font-size: 9px !important; letter-spacing: .3px !important; }
+  .troop-row .field input { width: 100%; padding-left: 6px; padding-right: 6px; font-size: 11px !important; }
+}
+
+
+/* Illustration-inspired USER / TARGET panels — visual only */
+.room-users-card{background:linear-gradient(145deg,rgba(12,19,39,.98),rgba(7,12,27,.98))!important;border:1px solid rgba(86,115,178,.32)!important;border-radius:22px!important;padding:clamp(10px,1.8vw,18px)!important}
+.illustration-lists{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:clamp(8px,1.5vw,16px)!important;align-items:stretch}
+.illustration-lists>.list-card{min-width:0;padding:10px!important;border-radius:17px!important;overflow:hidden;background:linear-gradient(155deg,rgba(15,29,58,.94),rgba(7,13,29,.98))!important;border:1px solid rgba(45,139,255,.62)!important;box-shadow:inset 0 1px rgba(255,255,255,.045),0 8px 24px rgba(0,0,0,.2)!important}
+.illustration-lists>.target-list-card{border-color:rgba(168,85,247,.72)!important;background:linear-gradient(155deg,rgba(43,20,73,.72),rgba(10,13,31,.98))!important;box-shadow:inset 0 1px rgba(255,255,255,.045),0 8px 24px rgba(0,0,0,.2)!important}
+.illustration-lists .listtitle{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:6px!important;min-height:38px!important;margin:0 0 9px!important;padding:0 2px!important}
+.illustration-lists .listtitle>span:first-child{display:flex!important;align-items:center!important;gap:8px!important;color:#e8f2ff!important;font-family:inherit!important;font-size:clamp(11px,1.3vw,14px)!important;font-weight:900!important;letter-spacing:.8px!important}
+.user-list-card .listtitle>span:first-child:before{content:'👥';font-size:19px;filter:drop-shadow(0 0 7px rgba(38,166,255,.35))}
+.target-list-card .listtitle>span:first-child:before{content:'🎯';font-size:19px;filter:drop-shadow(0 0 7px rgba(168,85,247,.4))}
+.list-count{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-width:34px!important;height:27px!important;padding:0 9px!important;border-radius:9px!important;background:linear-gradient(135deg,#1268b9,#17468c)!important;border:1px solid rgba(92,178,255,.38)!important;color:#eaf7ff!important;font-size:12px!important;font-weight:900!important;line-height:1!important}
+.target-count{background:linear-gradient(135deg,#7626c9,#4c168d)!important;border-color:rgba(204,145,255,.4)!important}
+.target-head-actions{display:flex!important;align-items:center!important;gap:7px!important}
+.illustration-lists #clearTarget{width:29px!important;min-width:29px!important;height:27px!important;min-height:27px!important;padding:0!important;border-radius:8px!important;font-size:13px!important;background:rgba(244,63,94,.14)!important;border:1px solid rgba(251,113,133,.32)!important;box-shadow:none!important}
+#userList,#targetList{box-sizing:border-box!important;width:100%!important;height:clamp(190px,31vh,330px)!important;min-height:190px!important;padding:5px!important;border-radius:13px!important;overflow-y:auto!important;scrollbar-width:thin!important;scrollbar-color:rgba(67,151,255,.65) rgba(3,9,24,.6)!important;background:rgba(3,9,23,.72)!important;border:1px solid rgba(80,137,209,.3)!important;box-shadow:inset 0 2px 9px rgba(0,0,0,.22)!important}
+#targetList{border-color:rgba(168,85,247,.34)!important;scrollbar-color:rgba(168,85,247,.7) rgba(15,7,29,.6)!important}
+#userList .user-item,#targetList .target-item{display:flex!important;align-items:center!important;gap:9px!important;min-height:52px!important;margin:3px 0!important;padding:7px 9px!important;border:1px solid rgba(100,146,210,.17)!important;border-radius:11px!important;background:linear-gradient(100deg,rgba(21,57,105,.48),rgba(13,25,48,.66))!important;color:#f1f6ff!important;font-size:12px!important;font-weight:750!important;line-height:1.25!important;overflow-wrap:anywhere!important;transition:background .16s,border-color .16s,transform .16s!important}
+#userList .user-item:hover{background:linear-gradient(100deg,rgba(22,93,164,.6),rgba(13,35,66,.8))!important;border-color:rgba(65,166,255,.48)!important;transform:translateY(-1px)!important}
+#targetList .target-item{border-color:rgba(166,111,231,.2)!important;border-left:3px solid #a855f7!important;background:linear-gradient(100deg,rgba(77,31,124,.43),rgba(24,17,49,.68))!important}
+#targetList .target-item:hover{background:linear-gradient(100deg,rgba(102,42,163,.58),rgba(34,21,63,.82))!important;border-color:rgba(190,132,255,.48)!important;transform:translateY(-1px)!important}
+#userList .user-check{flex:0 0 19px!important;width:19px!important;height:19px!important;min-height:19px!important;margin:0!important;accent-color:#28aaff!important}
+#userList .user-item>span{min-width:0!important;display:flex!important;align-items:center!important;gap:8px!important;overflow-wrap:anywhere!important}
+#userList .user-item>span:before,#targetList .target-item:before{content:'🤖';display:inline-flex;align-items:center;justify-content:center;flex:0 0 34px;width:34px;height:34px;border-radius:50%;background:linear-gradient(145deg,#087ed0,#153e8c)!important;box-shadow:0 0 12px rgba(34,150,255,.2);font-size:19px}
+#targetList .target-item:before{background:linear-gradient(145deg,#6525ad,#253c91)!important;box-shadow:0 0 12px rgba(168,85,247,.22)}
+#userList .empty,#targetList .empty{padding:12px 9px!important;color:#9aaccb!important;text-align:center!important;font-size:11px!important}
+#userList::-webkit-scrollbar,#targetList::-webkit-scrollbar{width:7px}
+#userList::-webkit-scrollbar-thumb{background:linear-gradient(#2588ed,#174b9d);border-radius:99px}
+#targetList::-webkit-scrollbar-thumb{background:linear-gradient(#b45cff,#6825b5);border-radius:99px}
+.room-controls-bottom{margin-top:12px!important}
+@media(max-width:600px){.room-users-card{padding:9px!important}.illustration-lists{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:7px!important}.illustration-lists>.list-card{padding:7px!important;border-radius:13px!important}.illustration-lists .listtitle{min-height:32px!important;margin-bottom:6px!important}.illustration-lists .listtitle>span:first-child{font-size:10px!important;gap:5px!important}.user-list-card .listtitle>span:first-child:before,.target-list-card .listtitle>span:first-child:before{font-size:15px}#userList,#targetList{height:clamp(185px,32vh,270px)!important;min-height:185px!important;padding:4px!important}#userList .user-item,#targetList .target-item{min-height:43px!important;gap:5px!important;padding:6px!important;font-size:10px!important}#userList .user-item>span:before,#targetList .target-item:before{flex-basis:25px;width:25px;height:25px;font-size:14px}.list-count{min-width:26px!important;height:23px!important;padding:0 6px!important;font-size:10px!important}.illustration-lists #clearTarget{width:25px!important;min-width:25px!important;height:23px!important;min-height:23px!important;font-size:11px!important}}
+@media(max-width:350px){.illustration-lists{gap:5px!important}.illustration-lists>.list-card{padding:5px!important}#userList .user-item,#targetList .target-item{font-size:9px!important;gap:4px!important;padding:5px 4px!important}#userList .user-item>span:before,#targetList .target-item:before{flex-basis:21px;width:21px;height:21px;font-size:12px}}
+
+
+/* Loop and Target Order share the existing final settings column. */
+.duel-settings-row{grid-template-columns:1fr 1fr 1fr 1fr 2.3fr!important}
+.duel-settings-row .loop-target-pair{display:grid;grid-column:1 / -1;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;align-items:end;min-width:0}
+.duel-settings-row .loop-target-pair .field{min-width:0}
+.duel-settings-row .loop-target-pair input,
+.duel-settings-row .loop-target-pair select{width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+@media(max-width:600px){.duel-settings-row{grid-template-columns:repeat(2,minmax(0,1fr))!important}.duel-settings-row .loop-target-pair{grid-column:1 / -1}}
+@media(max-width:390px){.duel-settings-row{grid-template-columns:repeat(2,minmax(0,1fr))!important}.duel-settings-row .loop-target-pair{grid-column:1 / -1}}
+</style>
+</body>
+</html>
